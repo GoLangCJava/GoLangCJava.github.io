@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["showzeng"]
   spec.email         = ["kingstageshow@gmail.com"]
 
-  spec.summary       = "Minimalism is a jekyll theme for minimalist"
+  spec.summary       = "Minimalism is a jekyll theme for minimalist2"
   spec.homepage      = "https://github.com/showzeng/minimalism"
   spec.license       = "MIT"
 
