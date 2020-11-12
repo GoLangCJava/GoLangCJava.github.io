@@ -1,0 +1,1 @@
+{"version":3,"sources":["Action.css"],"names":[],"mappings":"AAAA,wBACI,kBACJ,CAEA,eACI,aACJ","file":"main.8e9ffea4.chunk.css","sourcesContent":[".plugin_action .ant-row {\n    margin-bottom: 10px;\n}\n\n.plugin_action {\n    height: 1200px;\n}"]}
