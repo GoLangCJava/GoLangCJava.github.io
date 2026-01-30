@@ -1,14 +1,791 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>clawdbot-react</title>
-    <script type="module" crossorigin src="/assets/index-B0KbwCHS.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BmeGit54.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Clawdbot AI - 你值得信赖的 AI 助手，支持多平台集成，高度可定制，安全可靠。">
+    <meta name="keywords" content="Clawdbot AI, 人工智能, 助手, 聊天机器人, 微信, WhatsApp, Discord, Slack, 飞书">
+    <title>Clawdbot AI - 你值得信赖的 AI 助手</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' x='0em' font-size='90'>🤖</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <style>
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #3eaf7c;
+            --primary-light: #4abf8a;
+            --primary-dark: #2c3e50;
+            --bg-color: #ffffff;
+            --bg-secondary: #f7f8fa;
+            --text-color: #2c3e50;
+            --text-secondary: #4a5568;
+            --text-muted: #9ca3af;
+            --border-color: #eaecef;
+            --border-light: #dfe2f7;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --navbar-height: 3.6rem;
+            --container-width: 1200px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark {
+            --bg-color: #1e1e1e;
+            --bg-secondary: #252525;
+            --text-color: #e4e9f7;
+            --text-secondary: #9ca3af;
+            --text-muted: #6a7587;
+            --border-color: #374151;
+            --border-light: #4b5563;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+            transition: background-color var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Container */
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Navbar */
+        .navbar {
+            height: var(--navbar-height);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color var(--transition), border-color var(--transition);
+        }
+
+        .navbar-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.25rem;
+            transition: transform var(--transition);
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .brand-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(62, 175, 124, 0.1) 0%, rgba(62, 175, 124, 0.05) 100%);
+            border-radius: var(--radius-lg);
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 1s ease-in;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--radius-lg);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: var(--text-color);
+            animation: fadeInUp 0.8s ease-in;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        /* Platform Section */
+        .platforms {
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            margin: 2rem 0;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .platform-item {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition);
+        }
+
+        .platform-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .platform-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .platform-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .platform-desc {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Quick Start Section */
+        .quickstart {
+            padding: 4rem 2rem;
+        }
+
+        .steps-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: #ffffff;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-icon {
+                font-size: 4rem;
+            }
+
+            .hero p {
+                font-size: 1.125rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .features-grid,
+            .platforms-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem 0;
+            }
+
+            .step-number {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.25rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-icon {
+                font-size: 3rem;
+            }
+
+            .features,
+            .platforms,
+            .quickstart {
+                padding: 3rem 1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid,
+            .platforms-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            opacity: 0;
+            animation: loading 0.3s ease-in;
+        }
+
+        @keyframes loading {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <span class="brand-icon">🤖</span>
+                <span>Clawdbot AI</span>
+            </a>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span>🌙</span>
+                <span>切换主题</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="container">
+        <div class="hero">
+            <div class="hero-icon">🤖</div>
+            <h1>欢迎来到 Clawdbot AI</h1>
+            <p>
+                你值得信赖的 AI 助手，支持多平台集成，<br>
+                高度可定制，安全可靠。
+            </p>
+            <div class="hero-buttons">
+                <a href="#features" class="btn btn-primary">开始使用</a>
+                <a href="#quickstart" class="btn btn-secondary">了解详情</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container features" id="features">
+        <h2 class="section-title">✨ 核心特性</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3 class="feature-title">AI 助手</h3>
+                <p class="feature-description">Clawdbot 是一个强大的 AI 助手，可以帮助你处理各种任务。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💬</span>
+                <h3 class="feature-title">多平台支持</h3>
+                <p class="feature-description">支持 Telegram、WhatsApp、Discord、Slack、飞书等多个平台。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <h3 class="feature-title">快速响应</h3>
+                <p class="feature-description">基于先进的大语言模型，提供快速、准确的回复。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔧</span>
+                <h3 class="feature-title">高度可定制</h3>
+                <p class="feature-description">支持自定义提示词、工具配置和工作流程。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <h3 class="feature-title">安全可靠</h3>
+                <p class="feature-description">数据加密传输，保障隐私安全。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platforms Section -->
+    <section class="platforms">
+        <div class="container">
+            <h2 class="section-title">🚀 支持的平台</h2>
+            <div class="platforms-grid">
+                <div class="platform-item">
+                    <span class="platform-icon">💬</span>
+                    <div class="platform-name">Telegram</div>
+                    <div class="platform-desc">完整的消息处理和命令支持</div>
+                </div>
+                <div class="platform-item">
+                    <span class="platform-icon">📱</span>
+                    <div class="platform-name">WhatsApp</div>
+                    <div class="platform-desc">实时聊天和多媒体消息</div>
+                </div>
+                <div class="platform-item">
+                    <span class="platform-icon">🎮</span>
+                    <div class="platform-name">Discord</div>
+                    <div class="platform-desc">服务器管理和社区集成</div>
+                </div>
+                <div class="platform-item">
+                    <span class="platform-icon">💼</span>
+                    <div class="platform-name">Slack</div>
+                    <div class="platform-desc">团队协作和消息处理</div>
+                </div>
+                <div class="platform-item">
+                    <span class="platform-icon">📋</span>
+                    <div class="platform-name">飞书</div>
+                    <div class="platform-desc">企业级办公和消息处理</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="container quickstart" id="quickstart">
+        <h2 class="section-title">📖 快速开始</h2>
+        <div class="steps-card">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3 class="step-title">配置平台</h3>
+                    <p class="step-desc">在配置文件中添加你的平台凭证（Telegram Bot Token、WhatsApp Business API 等）</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3 class="step-title">设置 AI 模型</h3>
+                    <p class="step-desc">配置你使用的 AI 提供商（OpenAI、Anthropic、Google 等）和 API 密钥</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3 class="step-title">启动服务</h3>
+                    <p class="step-desc">运行 <code>clawdbot start</code> 命令启动服务，开始使用你的 AI 助手</p>
+                </div>
+            </div>
+            <div class="step last-child">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3 class="step-title">享受使用</h3>
+                    <p class="step-desc">开始与你的 AI 助手对话，体验智能、便捷的消息处理</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/clawdbot" class="footer-link">GitHub</a>
+                <a href="https://docs.clawdbot.com" class="footer-link">文档</a>
+                <a href="https://feishu.im" class="footer-link">飞书</a>
+            </div>
+            <div class="footer-copyright">
+                © 2026 Clawdbot AI. Built with ❤️ using modern web technologies.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dark Mode Toggle Script -->
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.classList.contains('dark') ? 'light' : 'dark';
+            
+            if (currentTheme === 'dark') {
+                body.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
 </html>
