@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OpenClaw 集成教程 - 学习如何使用OpenClawbot，集成到社交平台，架构设计，最佳实践。">
+    <meta name="keywords" content="OpenClaw, Clawdbot, AI助手, 社交平台集成, Telegram, WhatsApp, Discord, Slack, 飞书, 微信">
+    <title>OpenClaw 集成教程 - 完整指南</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' x='0em' font-size='90'>🤖</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #8b5cf6;
+            --primary-light: #a78bfa;
+            --primary-dark: #6d28d9;
+            --bg-color: #ffffff;
+            --bg-secondary: #f7f8fa;
+            --text-color: #2c3e50;
+            --text-secondary: #4a5568;
+            --text-muted: #9ca3af;
+            --border-color: #eaecef;
+            --border-light: #dfe2f7;
+            --shadow-sm: 0 1px 2px rgba(139, 92, 246, 0.1);
+            --shadow-md: 0 4px 6px rgba(139, 92, 246, 0.15);
+            --shadow-lg: 0 10px 15px rgba(139, 92, 246, 0.2);
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --container-width: 1200px;
+        }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: var(--radius-lg);
+            margin-bottom: 4rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .section {
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-color);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+            color: var(--text-color);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .card ul {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .card code {
+            background: #1e1e1e;
+            color: #a5d6ff;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin: 0.25rem 0;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list > li {
+            position: relative;
+            padding: 1.5rem 1.5rem 1.5rem 4.5rem;
+            border-bottom: 1px solid var(--border-color);
+            counter-increment: step-counter;
+        }
+
+        .step-list > li:last-child {
+            border-bottom: none;
+        }
+
+        .step-list > li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 1.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .step-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .platform-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .platform-icon {
+            font-size: 3rem;
+        }
+
+        .platform-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .platform-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .difficulty-easy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .difficulty-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-hard {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .toc {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            margin: 2rem 0;
+        }
+
+        .toc h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        
+        <header class="header">
+            <h1>📖 OpenClaw 集成完整教程</h1>
+            <p>从零开始学习如何使用OpenClaw，集成到各种平台，设计你的架构</p>
+        </header>
+
+        <div class="toc">
+            <h3>📚 目录</h3>
+            <ul>
+                <li><a href="#intro">1. OpenClaw 简介</a></li>
+                <li><a href="#quickstart">2. 快速开始</a></li>
+                <li><a href="#architecture">3. 系统架构设计</a></li>
+                <li><a href="#platforms">4. 社交平台集成</a></li>
+                <li><a href="#best-practices">5. 最佳实践</a></li>
+                <li><a href="#advanced">6. 高级主题</a></li>
+            </ul>
+        </div>
+
+        <section class="section" id="intro">
+            <h2 class="section-title">📖 1. OpenClaw 简介</h2>
+            <p style="color: var(--text-secondary); line-height: 1.8;">
+                OpenClaw（原Clawdbot）是一个功能强大的AI助手框架，支持多平台集成，
+                可以轻松地将其部署到各种社交和通讯平台。通过OpenClaw，你可以：
+            </p>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <span class="card-icon">💬</span>
+                    <h3>智能对话</h3>
+                    <p>基于大语言模型，支持自然语言交互，理解上下文，提供智能回复。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">⚡</span>
+                    <h3>快速响应</h3>
+                    <p>高效的消息处理机制，实时响应用户请求，支持高并发处理。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔧</span>
+                    <h3>高度可定制</h3>
+                    <p>支持自定义提示词、工具配置、工作流程，满足个性化需求。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔒</span>
+                    <h3>安全可靠</h3>
+                    <p>数据加密传输，保障隐私安全，支持权限管理和访问控制。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="quickstart">
+            <h2 class="section-title">🚀 2. 快速开始</h2>
+            <p class="section-subtitle">5分钟启动你的OpenClawbot</p>
+            
+            <ul class="step-list">
+                <li>
+                    <div class="step-content">
+                        <h3>获取源码</h3>
+                        <p>从GitHub克隆OpenClaw项目</p>
+                        <code>git clone https://github.com/clawdbot/clawdbot.git</code>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-content">
+                        <h3>安装依赖</h3>
+                        <p>安装Node.js依赖包</p>
+                        <code>npm install</code>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-content">
+                        <h3>配置环境变量</h3>
+                        <p>创建<code>.env</code>文件，配置API密钥</p>
+                        <pre style="background: #1e1e1e; color: #a5d6ff; padding: 1rem; border-radius: 0.5rem; overflow-x: auto;">OPENAI_API_KEY=sk-your-key-here
+TELEGRAM_BOT_TOKEN=your-token
+WHATSAPP_PHONE_ID=your-phone</code>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-content">
+                        <h3>启动服务</h3>
+                        <p>启动OpenClaw服务</p>
+                        <code>npm start</code>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section" id="architecture">
+            <h2 class="section-title">🏗️ 3. 系统架构设计</h2>
+            <p class="section-subtitle">深入理解OpenClaw的工作原理</p>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <span class="card-icon">🎯</span>
+                    <h3>核心层 (Core)</h3>
+                    <ul>
+                        <li>消息路由：接收和分发用户消息</li>
+                        <li>会话管理：维护用户会话状态和历史</li>
+                        <li>状态跟踪：跟踪系统运行状态</li>
+                        <li>错误处理：统一错误处理和重试机制</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🤖</span>
+                    <h3>AI层 (AI)</h3>
+                    <ul>
+                        <li>大语言模型集成：支持OpenAI、Anthropic等</li>
+                        <li>提示词管理：系统提示词和用户提示词</li>
+                        <li>上下文维护：维护对话上下文和历史记录</li>
+                        <li>流式响应：支持流式AI响应输出</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">💬</span>
+                    <h3>平台层 (Platform)</h3>
+                    <ul>
+                        <li>多平台适配器：统一的消息格式转换</li>
+                        <li>事件处理器：处理各平台特定事件</li>
+                        <li>Webhook管理：管理Webhook回调</li>
+                        <li>消息队列：异步消息处理</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">💾</span>
+                    <h3>存储层 (Storage)</h3>
+                    <ul>
+                        <li>会话持久化：保存用户会话数据</li>
+                        <li>用户数据：管理用户信息和配置</li>
+                        <li>配置管理：系统配置和设置</li>
+                        <li>日志系统：记录系统运行日志</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔧</span>
+                    <h3>工具层 (Tools)</h3>
+                    <ul>
+                        <li>文件处理：文件上传、下载、处理</li>
+                        <li>搜索功能：全文搜索和语义搜索</li>
+                        <li>自动化任务：定时任务和自动化工作流</li>
+                        <li>外部API集成：集成第三方API和服务</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem;">
+                <span class="card-icon">🔄</span>
+                <h3>数据流向</h3>
+                <p style="text-align: center; margin-top: 1rem;">
+                    用户消息 → 平台层 → 核心层 → AI层 → 核心层 → 用户回复
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="platforms">
+            <h2 class="section-title">💬 4. 社交平台集成</h2>
+            <p class="section-subtitle">详细集成指南和最佳实践</p>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">💬</span>
+                    <div class="platform-name">Telegram Bot</div>
+                    <span class="difficulty difficulty-easy">难度：简单</span>
+                </div>
+                <p>Telegram是最易集成的平台之一，完整的消息处理和命令支持。</p>
+                <p><strong>关键功能：</strong> Webhook模式、长轮询、富文本、内联按钮、文件发送</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>在 <a href="https://t.me/botfather" target="_blank" style="color: var(--primary-color);">BotFather</a> 创建Bot</li>
+                    <li>获取Bot Token</li>
+                    <li>配置OpenClaw的Telegram适配器</li>
+                    <li>设置Webhook URL</li>
+                    <li>测试Bot功能</li>
+                </ol>
+                <a href="#" class="btn">查看Telegram集成教程 →</a>
+            </div>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">📱</span>
+                    <div class="platform-name">WhatsApp Business API</div>
+                    <span class="difficulty difficulty-medium">难度：中等</span>
+                </div>
+                <p>WhatsApp拥有全球最大的用户群，适合企业级应用集成。</p>
+                <p><strong>关键功能：</strong> 实时聊天、多媒体消息、模板消息、状态消息、位置消息</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>注册WhatsApp Business API账号</li>
+                    <li>获取Phone Number和Access Token</li>
+                    <li>配置OpenClaw的WhatsApp适配器</li>
+                    <li>配置Webhook接收消息</li>
+                    <li>发送测试消息</li>
+                </ol>
+                <a href="#" class="btn">查看WhatsApp集成教程 →</a>
+            </div>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">🎮</span>
+                    <div class="platform-name">Discord Bot</div>
+                    <span class="difficulty difficulty-medium">难度：中等</span>
+                </div>
+                <p>Discord拥有活跃的开发者社区，适合游戏和社区应用。</p>
+                <p><strong>关键功能：</strong> Slash命令、Rich Embeds、表情支持、按钮、权限管理</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>在 Discord Developer Portal 创建应用</li>
+                    <li>创建Bot并获取Token</li>
+                    <li>配置OpenClaw的Discord适配器</li>
+                    <li>设置Gateway Intents（消息、频道）</li>
+                    <li>添加Bot到你的服务器</li>
+                </ol>
+                <a href="#" class="btn">查看Discord集成教程 →</a>
+            </div>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">💼</span>
+                    <div class="platform-name">Slack App</div>
+                    <span class="difficulty difficulty-medium">难度：中等</span>
+                </div>
+                <p>Slack是企业级团队协作平台，适合内部工具集成。</p>
+                <p><strong>关键功能：</strong> 团队协作、消息处理、机器人集成、Slash命令、快捷方式</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>创建Slack App</li>
+                    <li>获取Bot Token（xoxb-）</li>
+                    <li>配置OAuth权限和Bot Token</li>
+                    <li>配置OpenClaw的Slack适配器</li>
+                    <li>设置Event API接收消息</li>
+                    <li>测试消息处理功能</li>
+                </ol>
+                <a href="#" class="btn">查看Slack集成教程 →</a>
+            </div>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">📋</span>
+                    <div class="platform-name">飞书机器人</div>
+                    <span class="difficulty difficulty-hard">难度：较难</span>
+                </div>
+                <p>飞书是企业级办公平台，在中国广泛使用，功能强大。</p>
+                <p><strong>关键功能：</strong> 富消息、卡片、机器人、Webhook、事件订阅、应用权限、开放平台</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>创建飞书开放平台应用</li>
+                    <li>获取App ID和App Secret</li>
+                    <li>配置OpenClaw的飞书适配器</li>
+                    <li>设置事件订阅（receive_v1, message_v1等）</li>
+                    <li>配置企业内部应用权限</li>
+                    <li>处理富消息和卡片格式</li>
+                </ol>
+                <a href="#" class="btn">查看飞书集成教程 →</a>
+            </div>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">💬</span>
+                    <div class="platform-name">微信小程序</div>
+                    <span class="difficulty difficulty-hard">难度：困难</span>
+                </div>
+                <p>微信小程序是中国最大的小程序生态系统，适合商业应用。</p>
+                <p><strong>关键功能：</strong> 小程序码、用户授权、页面路径、微信支付、模板消息</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>注册微信小程序账号</li>
+                    <li>创建小程序应用</li>
+                    <li>获取AppID和AppSecret</li>
+                    <li>配置服务器域名和合法域名</li>
+                    <li>实现用户授权流程</li>
+                    <li>使用小程序API接收消息</li>
+                </ol>
+                <a href="#" class="btn">查看微信集成教程 →</a>
+            </div>
+            
+            <div class="platform-card">
+                <div class="platform-header">
+                    <span class="platform-icon">💬</span>
+                    <div class="platform-name">iMessage / SMS</div>
+                    <span class="difficulty difficulty-medium">难度：中等</span>
+                </div>
+                <p>iMessage适合iOS生态，SMS适合本地化和企业通知。</p>
+                <p><strong>iMessage关键功能：</strong> APNs推送、富文本、图片、文件、消息状态、群发</p>
+                <p><strong>SMS关键功能：</strong> 全球覆盖、网关集成、模板短信、状态报告</p>
+                <p><strong>集成步骤：</strong></p>
+                <ol style="color: var(--text-secondary); margin-left: 1.5rem; line-height: 1.8;">
+                    <li>iMessage：配置APNs证书和推送服务</li>
+                    <li>SMS：选择短信网关提供商</li>
+                    <li>配置OpenClaw的SMS适配器</li>
+                    <li>设置消息模板和路由</li>
+                    <li>实现消息状态回调</li>
+                </ol>
+                <a href="#" class="btn">查看iMessage集成教程 →</a>
+            </div>
+        </section>
+
+        <section class="section" id="best-practices">
+            <h2 class="section-title">✅ 5. 最佳实践</h2>
+            <p class="section-subtitle">生产环境部署和优化的关键要点</p>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <span class="card-icon">🔒</span>
+                    <h3>安全性</h3>
+                    <ul>
+                        <li>永远不要在代码中硬编码API密钥</li>
+                        <li>使用环境变量或密钥管理服务</li>
+                        <li>实施速率限制和配额监控</li>
+                        <li>定期轮换API密钥</li>
+                        <li>使用HTTPS和TLS加密</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">⚡</span>
+                    <h3>性能优化</h3>
+                    <ul>
+                        <li>使用Redis或内存缓存常见问题答案</li>
+                        <li>实现消息队列处理高并发请求</li>
+                        <li>使用CDN加速静态资源</li>
+                        <li>优化数据库查询和索引</li>
+                        <li>实施连接池和负载均衡</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔄</span>
+                    <h3>错误处理</h3>
+                    <ul>
+                        <li>实现完善的错误处理机制</li>
+                        <li>使用指数退避策略进行重试</li>
+                        <li>记录详细的错误日志和堆栈跟踪</li>
+                        <li>设置监控告警（Prometheus、Grafana）</li>
+                        <li>实现断路器模式防止级联故障</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📊</span>
+                    <h3>监控和日志</h3>
+                    <ul>
+                        <li>记录所有API请求和响应</li>
+                        <li>监控使用情况、错误率和响应时间</li>
+                        <li>分析用户行为和常见问题</li>
+                        <li>设置告警阈值和通知机制</li>
+                        <li>定期审查和清理日志</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🧪</span>
+                    <h3>测试策略</h3>
+                    <ul>
+                        <li>编写单元测试和集成测试</li>
+                        <li>使用Mock数据进行测试</li>
+                        <li>实现端到端自动化测试</li>
+                        <li>进行压力测试确保稳定性</li>
+                        <li>在生产前进行灰度发布</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="advanced">
+            <h2 class="section-title">🚀 6. 高级主题</h2>
+            <p class="section-subtitle">深入学习和高级集成技巧</p>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <span class="card-icon">🎭</span>
+                    <h3>提示词工程</h3>
+                    <p>学习如何设计有效的提示词，提高AI回复质量。包括角色设定、上下文引导、输出格式控制、思维链（Chain of Thought）等技巧。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔗</span>
+                    <h3>RAG系统</h3>
+                    <p>检索增强生成（RAG）结合向量数据库和大语言模型，让AI能够访问和引用外部知识库，提供更准确的回复。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🤖</span>
+                    <h3>多模态AI</h3>
+                    <p>集成视觉模型，支持图像识别、图片生成、语音转文字、视频分析等多模态功能。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📊</span>
+                    <h3>数据分析</h3>
+                    <p>收集和分析用户交互数据，优化提示词和工作流程，发现常见问题和用户需求。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔄</span>
+                    <h3>自动化工作流</h3>
+                    <p>使用OpenClaw的自动化功能，实现定时任务、自动回复、智能路由、条件触发等复杂业务逻辑。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🔐</span>
+                    <h3>微服务架构</h3>
+                    <p>将OpenClaw拆分为多个微服务，包括AI服务、平台适配器、存储服务、API网关等，提高可扩展性和维护性。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="text-align: center; padding: 4rem 2rem;">
+            <h2 class="section-title">🎓 学习资源</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-secondary);">持续学习和提升OpenClaw技能</p>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <span class="card-icon">📖</span>
+                    <h3>OpenAI官方文档</h3>
+                    <p><a href="https://platform.openai.com/docs" target="_blank" style="color: var(--primary-color);">platform.openai.com/docs</a></p>
+                    <p>大语言模型的权威文档，包含API参考、最佳实践和示例。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📚</span>
+                    <h3>GitHub社区</h3>
+                    <p><a href="https://github.com/clawdbot/clawdbot" target="_blank" style="color: var(--primary-color);">github.com/clawdbot/clawdbot</a></p>
+                    <p>查看源代码、报告问题和贡献代码。</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">💬</span>
+                    <h3>社区论坛</h3>
+                    <p><a href="https://community.clawdbot.com" target="_blank" style="color: var(--primary-color);">community.clawdbot.com</a></p>
+                    <p>与其他开发者交流经验，获取帮助和分享知识。</p>
+                </div>
+            </div>
+            
+            <a href="index.html" class="btn">返回首页</a>
+        </section>
+    </div>
+</body>
+</html>
