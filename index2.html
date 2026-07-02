@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>拼音乐园 🌈 — 快乐学拼音</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#FFF6E0; --bg2:#FFE4F1; --bg3:#E0F4FF;
+  --pink:#FF7EB3; --yellow:#FFD93D; --blue:#6EC6FF; --green:#7ED957; --purple:#B983FF; --orange:#FFA45B;
+  --ink:#2E3A59; --ink2:#5A6B8C;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;}
+html,body{height:100%;}
+body{
+  font-family:"ZCOOL KuaiLe","Baloo 2","PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1000px 600px at 10% 0%, #FFDDEE 0%, transparent 60%),
+    radial-gradient(900px 500px at 90% 10%, #D8F0FF 0%, transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, #FFF3C0 0%, transparent 60%),
+    linear-gradient(180deg,#FFF6E0 0%,#FFE4F1 100%);
+  min-height:100vh;overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+#stars::before,#stars::after{
+  content:"";position:absolute;inset:0;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 70% 20%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 40% 70%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 85% 80%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 10% 90%, #fff 50%, transparent 51%);
+  opacity:.7;animation:twinkle 4s ease-in-out infinite alternate;
+}
+#stars::after{animation-delay:2s;transform:translate(30px,20px);}
+@keyframes twinkle{from{opacity:.3}to{opacity:.9}}
+
+.screen{display:none;min-height:100vh;padding:20px;position:relative;z-index:1;}
+.screen.active{display:block;animation:pageIn .5s ease;}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ===== 首页 ===== */
+.home-inner{max-width:1000px;margin:0 auto;text-align:center;padding:40px 10px;}
+.logo{
+  font-size:clamp(48px,9vw,96px);letter-spacing:8px;
+  background:linear-gradient(120deg,#FF6EA0,#FFD93D 40%,#6EC6FF 70%,#B983FF);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:4px 4px 0 rgba(255,255,255,.6);
+  animation:bounce 2s ease-in-out infinite;
+}
+.logo span{display:inline-block;animation:wave 2s ease-in-out infinite;}
+.logo span:nth-child(2){animation-delay:.4s;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes wave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.subtitle{font-size:clamp(18px,2.4vw,24px);color:var(--ink2);margin:12px 0 40px;}
+.menu{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:22px;max-width:900px;margin:0 auto;
+}
+.card{
+  border:none;cursor:pointer;padding:28px 18px 22px;border-radius:28px;
+  background:#fff;box-shadow:0 10px 0 rgba(0,0,0,.08),0 20px 40px rgba(0,0,0,.08);
+  transition:transform .18s ease, box-shadow .18s ease;font-family:inherit;
+}
+.card:hover{transform:translateY(-6px) rotate(-1deg);}
+.card:active{transform:translateY(2px);box-shadow:0 4px 0 rgba(0,0,0,.08),0 8px 20px rgba(0,0,0,.08);}
+.card .emoji{font-size:64px;line-height:1;margin-bottom:8px;}
+.card .ttl{font-size:28px;color:var(--ink);}
+.card .desc{font-size:15px;color:var(--ink2);margin-top:4px;}
+.card-learn{background:linear-gradient(160deg,#FFF6D6,#FFE4A0);}
+.card-match{background:linear-gradient(160deg,#DFF6FF,#B7E4FF);}
+.card-pop{background:linear-gradient(160deg,#FFE0EE,#FFC0DC);}
+.card-tone{background:linear-gradient(160deg,#E8DFFF,#C9B5FF);}
+.star-count{margin-top:36px;font-size:20px;color:var(--ink2);}
+#starCount{color:#FF8A00;font-size:26px;margin-left:4px;}
+#popCombo{color:#FF4E9A;font-size:26px;margin-left:4px;}
+#popTimer{color:#B983FF;font-size:26px;margin-left:4px;}
+@keyframes pulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.2);}
+}
+.combo-pulse{animation:pulse .3s ease;}
+
+/* ===== 通用顶栏 ===== */
+.topbar{
+  max-width:1100px;margin:0 auto 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.back{
+  border:none;background:#fff;padding:10px 18px;border-radius:999px;font-family:inherit;font-size:18px;
+  color:var(--ink);cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.08);transition:transform .15s;
+}
+.back:hover{transform:translateX(-3px);}
+.tabs{display:flex;gap:8px;background:#fff;padding:6px;border-radius:999px;box-shadow:0 5px 0 rgba(0,0,0,.08);}
+.tab{border:none;background:transparent;padding:8px 18px;border-radius:999px;font-family:inherit;font-size:18px;cursor:pointer;color:var(--ink2);}
+.tab.active{background:linear-gradient(120deg,#FFD93D,#FF9B6E);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.1);}
+.score,.target{
+  background:#fff;padding:10px 18px;border-radius:999px;font-size:20px;color:var(--ink);
+  box-shadow:0 5px 0 rgba(0,0,0,.08);
+}
+.target span{color:#FF4E9A;font-size:32px;margin-left:8px;font-weight:800;}
+
+/* ===== 学一学 网格 ===== */
+.grid{
+  max-width:1100px;margin:0 auto;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px;
+}
+.pin{
+  cursor:pointer;border:none;background:#fff;border-radius:24px;padding:22px 10px 18px;
+  font-family:inherit;font-size:42px;color:var(--ink);position:relative;
+  box-shadow:0 8px 0 rgba(0,0,0,.08),0 12px 24px rgba(0,0,0,.06);
+  transition:transform .15s ease;
+}
+.pin:hover{transform:translateY(-4px) rotate(-2deg);}
+.pin:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.08);}
+.pin .word{display:block;font-size:15px;color:var(--ink2);margin-top:6px;font-family:"PingFang SC","Microsoft YaHei",sans-serif;}
+.pin.playing{animation:pop .5s ease;background:linear-gradient(160deg,#FFF6C0,#FFD97A);}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.15) rotate(-3deg)}100%{transform:scale(1)}}
+.pin:nth-child(5n+1){background:linear-gradient(160deg,#FFF3D6,#FFE199);}
+.pin:nth-child(5n+2){background:linear-gradient(160deg,#DDF3FF,#A8DEFF);}
+.pin:nth-child(5n+3){background:linear-gradient(160deg,#FFE0EC,#FFB8D4);}
+.pin:nth-child(5n+4){background:linear-gradient(160deg,#E4FFD9,#B4EE9E);}
+.pin:nth-child(5n+5){background:linear-gradient(160deg,#EDE0FF,#C6ADFF);}
+.learn-hint{text-align:center;margin-top:24px;color:var(--ink2);font-size:18px;}
+
+/* ===== 连一连 ===== */
+.match-body{max-width:800px;margin:0 auto;text-align:center;}
+.listen-card{
+  background:#fff;border-radius:36px;padding:40px 20px;margin-bottom:30px;
+  box-shadow:0 10px 0 rgba(0,0,0,.06),0 20px 40px rgba(0,0,0,.08);
+}
+.listen-card p{color:var(--ink2);font-size:20px;margin-top:16px;}
+.big-play{
+  width:140px;height:140px;border-radius:50%;border:none;font-size:64px;cursor:pointer;
+  background:linear-gradient(160deg,#FFD93D,#FF9B6E);color:#fff;
+  box-shadow:0 10px 0 #d97b47,0 15px 30px rgba(0,0,0,.15);
+  transition:transform .15s;
+}
+.big-play:hover{transform:scale(1.05);}
+.big-play:active{transform:translateY(6px);box-shadow:0 4px 0 #d97b47;}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px;}
+.choice{
+  border:none;background:#fff;border-radius:28px;padding:26px;font-family:inherit;font-size:44px;cursor:pointer;
+  color:var(--ink);box-shadow:0 8px 0 rgba(0,0,0,.08);transition:transform .15s;
+}
+.choice:hover{transform:translateY(-4px);}
+.choice.right{background:linear-gradient(160deg,#B4EE9E,#7ED957);color:#fff;animation:cheer .6s;}
+.choice.wrong{background:linear-gradient(160deg,#FFB8B8,#FF7A7A);color:#fff;animation:shake .4s;}
+@keyframes cheer{0%,100%{transform:scale(1)}50%{transform:scale(1.15) rotate(3deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.feedback{min-height:40px;margin-top:18px;font-size:24px;color:#FF4E9A;}
+
+/* ===== 戳气球 ===== */
+.balloons{
+  max-width:1100px;margin:0 auto;position:relative;height:70vh;overflow:hidden;
+  border-radius:32px;background:linear-gradient(180deg,#DFF6FF 0%,#FFF6E0 100%);
+  box-shadow:inset 0 -8px 0 rgba(0,0,0,.06);
+}
+.balloon{
+  position:absolute;width:90px;height:110px;border-radius:50% 50% 45% 45%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;color:#fff;cursor:pointer;font-family:inherit;
+  box-shadow:inset -10px -10px 20px rgba(0,0,0,.15);
+  animation:floatUp linear;
+}
+.balloon::after{
+  content:"";position:absolute;bottom:-20px;left:50%;width:2px;height:20px;background:#aaa;transform:translateX(-50%);
+}
+.balloon.pop{animation:popOut .4s forwards;}
+@keyframes popOut{to{transform:scale(1.5);opacity:0;}}
+@keyframes floatUp{
+  from{transform:translateY(0) rotate(-3deg);}
+  to{transform:translateY(-110vh) rotate(3deg);}
+}
+
+/* ===== 四声调 ===== */
+.tone-picker{display:flex;gap:6px;background:#fff;padding:6px;border-radius:999px;box-shadow:0 5px 0 rgba(0,0,0,.08);}
+.tp{border:none;background:transparent;width:44px;height:44px;border-radius:50%;font-family:inherit;font-size:22px;cursor:pointer;color:var(--ink2);}
+.tp.active{background:linear-gradient(120deg,#6EC6FF,#B983FF);color:#fff;}
+.tones{max-width:1000px;margin:20px auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;}
+.tone-card{
+  background:#fff;border-radius:32px;padding:30px 20px;text-align:center;cursor:pointer;
+  box-shadow:0 10px 0 rgba(0,0,0,.06),0 20px 30px rgba(0,0,0,.08);transition:transform .15s;
+}
+.tone-card:hover{transform:translateY(-6px);}
+.tone-card:nth-child(1){background:linear-gradient(160deg,#FFF6D6,#FFD97A);}
+.tone-card:nth-child(2){background:linear-gradient(160deg,#DFF6FF,#A8DEFF);}
+.tone-card:nth-child(3){background:linear-gradient(160deg,#FFE0EC,#FFB8D4);}
+.tone-card:nth-child(4){background:linear-gradient(160deg,#E4FFD9,#B4EE9E);}
+.tone-card .tv{font-size:80px;color:var(--ink);line-height:1;}
+.tone-card .tl{font-size:20px;color:var(--ink2);margin-top:14px;}
+.tone-card .flag{font-size:40px;margin-top:8px;display:inline-block;}
+.tone-hint{text-align:center;color:var(--ink2);font-size:18px;margin-top:20px;}
+
+/* ===== 弹层 ===== */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;
+  align-items:center;justify-content:center;z-index:100;
+}
+.modal.show{display:flex;animation:fade .3s;}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-inner{
+  background:#fff;padding:40px 50px;border-radius:32px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .4s ease;
+}
+@keyframes popIn{from{transform:scale(.5) rotate(-10deg);opacity:0}to{transform:scale(1);opacity:1}}
+.big-star{font-size:100px;animation:spin 1s ease;}
+@keyframes spin{from{transform:rotate(-180deg) scale(0)}to{transform:rotate(0) scale(1)}}
+.reward-text{font-size:32px;color:#FF6EA0;margin:16px 0 24px;}
+.btn-primary{
+  border:none;background:linear-gradient(120deg,#FFD93D,#FF9B6E);color:#fff;
+  font-family:inherit;font-size:22px;padding:12px 40px;border-radius:999px;cursor:pointer;
+  box-shadow:0 6px 0 #d97b47;
+}
+.btn-primary:active{transform:translateY(3px);box-shadow:0 3px 0 #d97b47;}
+
+@media (max-width:520px){
+  .card .emoji{font-size:48px;}
+  .card .ttl{font-size:22px;}
+  .pin{font-size:32px;}
+  .big-play{width:110px;height:110px;font-size:48px;}
+  .choice{font-size:34px;padding:20px;}
+}
+</style>
+</head>
+<body>
+  <div id="stars"></div>
+
+  <!-- 首页 -->
+  <section id="home" class="screen active">
+    <div class="home-inner">
+      <h1 class="logo">拼<span>音</span>乐<span>园</span></h1>
+      <p class="subtitle">和小伙伴一起，边玩边学拼音吧！</p>
+      <div class="menu">
+        <button class="card card-learn" data-goto="learn">
+          <div class="emoji">📖</div>
+          <div class="ttl">学一学</div>
+          <div class="desc">听发音 · 看动画</div>
+        </button>
+        <button class="card card-match" data-goto="match">
+          <div class="emoji">🎯</div>
+          <div class="ttl">连一连</div>
+          <div class="desc">听声音 · 找拼音</div>
+        </button>
+        <button class="card card-pop" data-goto="pop">
+          <div class="emoji">🎈</div>
+          <div class="ttl">戳气球</div>
+          <div class="desc">找出正确的拼音</div>
+        </button>
+        <button class="card card-tone" data-goto="tone">
+          <div class="emoji">🎵</div>
+          <div class="ttl">四声调</div>
+          <div class="desc">学习一二三四声</div>
+        </button>
+      </div>
+      <div class="star-count">⭐ 我的小星星：<span id="starCount">0</span></div>
+    </div>
+  </section>
+
+  <!-- 学一学 -->
+  <section id="learn" class="screen">
+    <header class="topbar">
+      <button class="back" data-goto="home">← 回家</button>
+      <div class="tabs">
+        <button class="tab active" data-tab="shengmu">声母</button>
+        <button class="tab" data-tab="yunmu">韵母</button>
+        <button class="tab" data-tab="zhengti">整体认读</button>
+      </div>
+    </header>
+    <div class="grid" id="learnGrid"></div>
+    <div class="learn-hint">👆 点一点每个拼音，听听它怎么读～</div>
+  </section>
+
+  <!-- 连一连 -->
+  <section id="match" class="screen">
+    <header class="topbar">
+      <button class="back" data-goto="home">← 回家</button>
+      <div class="score">⭐ <span id="matchScore">0</span></div>
+    </header>
+    <div class="match-body">
+      <div class="listen-card">
+        <button id="playSound" class="big-play">🔊</button>
+        <p>听一听，选出正确的拼音！</p>
+      </div>
+      <div class="choices" id="matchChoices"></div>
+      <div class="feedback" id="matchFb"></div>
+    </div>
+  </section>
+
+  <!-- 戳气球 -->
+  <section id="pop" class="screen">
+    <header class="topbar">
+      <button class="back" data-goto="home">← 回家</button>
+      <div class="target">找出：<span id="popTarget">b</span></div>
+      <div class="score">⭐ <span id="popScore">0</span></div>
+      <div class="score" style="background:linear-gradient(160deg,#FFE0EC,#FFC0DC);">🔥 <span id="popCombo">0</span></div>
+      <div class="score" style="background:linear-gradient(160deg,#E8DFFF,#C9B5FF);">⏱️ <span id="popTimer">60</span>s</div>
+    </header>
+    <div class="balloons" id="balloons"></div>
+  </section>
+
+  <!-- 四声调 -->
+  <section id="tone" class="screen">
+    <header class="topbar">
+      <button class="back" data-goto="home">← 回家</button>
+      <div class="tone-picker">
+        <button class="tp active" data-v="a">a</button>
+        <button class="tp" data-v="o">o</button>
+        <button class="tp" data-v="e">e</button>
+        <button class="tp" data-v="i">i</button>
+        <button class="tp" data-v="u">u</button>
+        <button class="tp" data-v="ü">ü</button>
+      </div>
+    </header>
+    <div class="tones" id="tones"></div>
+    <div class="tone-hint">👆 点每一个声调听发音，看看小旗子的方向！</div>
+  </section>
+
+  <!-- 弹层：奖励星星 -->
+  <div id="rewardModal" class="modal">
+    <div class="modal-inner">
+      <div class="big-star">⭐</div>
+      <div class="reward-text">太棒了！</div>
+      <button class="btn-primary" id="rewardClose">继续</button>
+    </div>
+  </div>
+
+<script>
+/* ========== 数据 ========== */
+// 数据格式：[拼音, 例词, 中文发音字（喂给 TTS 让它读中文而不是英文字母）]
+const SHENGMU = [
+  ['b','爸爸','玻'],['p','皮球','坡'],['m','妈妈','摸'],['f','飞机','佛'],
+  ['d','弟弟','得'],['t','兔子','特'],['n','牛奶','讷'],['l','老虎','勒'],
+  ['g','哥哥','哥'],['k','蝌蚪','科'],['h','荷花','喝'],
+  ['j','鸡蛋','基'],['q','气球','七'],['x','西瓜','西'],
+  ['zh','蜘蛛','知'],['ch','汽车','吃'],['sh','狮子','诗'],['r','日出','日'],
+  ['z','嘴巴','资'],['c','刺猬','雌'],['s','松树','思'],
+  ['y','鸭子','衣'],['w','袜子','屋']
+];
+const YUNMU = [
+  ['a','阿姨','啊'],['o','喔喔','喔'],['e','鹅','鹅'],['i','衣服','衣'],['u','乌鸦','乌'],['ü','鱼','鱼'],
+  ['ai','爱心','爱'],['ei','诶','诶'],['ui','水','威'],
+  ['ao','袄','袄'],['ou','藕','欧'],['iu','游','优'],
+  ['ie','夜','耶'],['üe','月','约'],['er','耳朵','儿'],
+  ['an','安','安'],['en','恩','恩'],['in','音','音'],['un','云','温'],['ün','晕','晕'],
+  ['ang','昂','昂'],['eng','灯','鞥'],['ing','鹰','英'],['ong','红','翁']
+];
+const ZHENGTI = [
+  ['zhi','知道','知'],['chi','吃饭','吃'],['shi','狮子','诗'],['ri','日出','日'],
+  ['zi','紫色','资'],['ci','磁铁','雌'],['si','四','思'],
+  ['yi','一','一'],['wu','五','屋'],['yu','鱼','鱼'],
+  ['ye','夜','夜'],['yue','月','月'],['yin','音','音'],['yun','云','云'],
+  ['yuan','圆','圆'],['ying','鹰','鹰']
+];
+// 从拼音查发音字（供听音选题/戳气球等使用）
+const SOUND_MAP={};
+[...SHENGMU,...YUNMU,...ZHENGTI].forEach(([p,,s])=>{ if(!SOUND_MAP[p]) SOUND_MAP[p]=s; });
+function sayPinyin(p){ speak(SOUND_MAP[p]||p,{rate:.55}); }
+const ALL = [...SHENGMU,...YUNMU,...ZHENGTI];
+
+/* ========== 语音 ========== */
+let voices=[];
+function loadVoices(){voices=speechSynthesis.getVoices();}
+if('speechSynthesis' in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged=loadVoices;
+}
+function speak(text,{rate=.7,pitch=1.1}={}){
+  if(!('speechSynthesis' in window))return;
+  try{speechSynthesis.cancel();}catch(e){}
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='zh-CN';u.rate=rate;u.pitch=pitch;
+  const zh=voices.find(v=>/zh|cmn|Chinese/i.test(v.lang+v.name));
+  if(zh){u.voice=zh;u.lang=zh.lang;}
+  // 无中文语音时，避免用英文语音读拼音字母，只播放有汉字的内容
+  if(!zh && /^[\x00-\x7F]+$/.test(text)) return;
+  speechSynthesis.speak(u);
+}
+
+/* ========== 星星奖励 ========== */
+let stars=parseInt(localStorage.getItem('py_stars')||'0',10);
+const starCountEl=document.getElementById('starCount');
+function addStar(n=1){
+  stars+=n;localStorage.setItem('py_stars',stars);
+  starCountEl.textContent=stars;
+  pop(document.querySelector('.star-count'));
+}
+starCountEl.textContent=stars;
+function pop(el){if(!el)return;el.animate([{transform:'scale(1)'},{transform:'scale(1.3)'},{transform:'scale(1)'}],{duration:400});}
+
+/* ========== 页面切换 ========== */
+document.querySelectorAll('[data-goto]').forEach(btn=>{
+  btn.addEventListener('click',()=>goto(btn.dataset.goto));
+});
+function goto(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='learn'){
+    setTimeout(()=>renderLearn('shengmu'),300);
+  }else if(id==='match'){
+    speak('听声音，选拼音',{rate:.9,pitch:1.2});
+    setTimeout(newMatch,500);
+  }else if(id==='pop'){
+    setTimeout(startPop,300);
+  }else if(id==='tone'){
+    setTimeout(()=>renderTones('a'),300);
+  }else if(id==='home'){
+    speak('拼音乐园',{rate:.8,pitch:1.2});
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ========== 学一学 ========== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');renderLearn(t.dataset.tab);
+  });
+});
+function renderLearn(kind){
+  const map={shengmu:SHENGMU,yunmu:YUNMU,zhengti:ZHENGTI};
+  const list=map[kind]||SHENGMU;
+  const grid=document.getElementById('learnGrid');
+  grid.innerHTML='';
+  list.forEach(([p,w,s])=>{
+    const b=document.createElement('button');
+    b.className='pin';
+    b.innerHTML=`${p}<span class="word">${w}</span>`;
+    b.addEventListener('click',()=>{
+      b.classList.add('playing');
+      // 使用中文发音字，确保TTS读中文而不是拼音字母
+      speak(s||p,{rate:.55,pitch:1.1});
+      // 之后再读例词
+      setTimeout(()=>speak(w,{rate:.75,pitch:1}),800);
+      setTimeout(()=>b.classList.remove('playing'),1200);
+    });
+    grid.appendChild(b);
+  });
+  // 进入板块时播放提示
+  const hints={shengmu:'声母',yunmu:'韵母',zhengti:'整体认读'};
+  speak(hints[kind]||'学一学',{rate:.8,pitch:1.2});
+}
+
+/* ========== 连一连 ========== */
+let matchScore=0,curMatch=null;
+const matchScoreEl=document.getElementById('matchScore');
+const matchFb=document.getElementById('matchFb');
+document.getElementById('playSound').addEventListener('click',()=>{
+  if(curMatch)sayPinyin(curMatch[0]);
+});
+function newMatch(){
+  matchFb.textContent='';
+  const pool=[...SHENGMU,...YUNMU];
+  curMatch=pool[Math.floor(Math.random()*pool.length)];
+  const others=pool.filter(x=>x[0]!==curMatch[0]).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[curMatch,...others].sort(()=>Math.random()-.5);
+  const box=document.getElementById('matchChoices');
+  box.innerHTML='';
+  opts.forEach(([p])=>{
+    const b=document.createElement('button');
+    b.className='choice';b.textContent=p;
+    b.addEventListener('click',()=>onMatchPick(b,p));
+    box.appendChild(b);
+  });
+  // 播放目标拼音
+  setTimeout(()=>sayPinyin(curMatch[0]),300);
+  // 2秒后再次提醒
+  setTimeout(()=>sayPinyin(curMatch[0]),2500);
+}
+function onMatchPick(btn,p){
+  if(p===curMatch[0]){
+    btn.classList.add('right');matchFb.textContent='真棒！⭐';
+    matchScore++;matchScoreEl.textContent=matchScore;
+    addStar(1);
+    // 答对语音鼓励
+    if(matchScore%5===0){
+      showReward('连对 5 题！');
+      speak('太棒了',{rate:.9,pitch:1.3});
+    }else{
+      speak('真棒',{rate:.9,pitch:1.2});
+    }
+    setTimeout(newMatch,1200);
+  }else{
+    btn.classList.add('wrong');matchFb.textContent='再试一次哦～';
+    // 错误语音提示
+    speak('不对哦',{rate:.9,pitch:1});
+    // 播放正确答案提示
+    setTimeout(()=>sayPinyin(curMatch[0]),800);
+    setTimeout(()=>btn.classList.remove('wrong'),500);
+  }
+}
+
+/* ========== 戳气球 ========== */
+let popScore=0,popTarget=null,popTimer=null,popCombo=0,popGameTime=60;
+const popScoreEl=document.getElementById('popScore');
+const popTargetEl=document.getElementById('popTarget');
+const balloonsEl=document.getElementById('balloons');
+const popComboEl=document.getElementById('popCombo');
+const popTimerEl=document.getElementById('popTimer');
+const colors=['#FF7EB3','#FFD93D','#6EC6FF','#7ED957','#B983FF','#FFA45B'];
+function startPop(){
+  popScore=0;popCombo=0;popGameTime=60;
+  popScoreEl.textContent=0;
+  if(popComboEl)popComboEl.textContent=0;
+  balloonsEl.innerHTML='';
+  // 游戏开始语音提示
+  speak('开始游戏！找出正确的拼音',{rate:.9,pitch:1.2});
+  setTimeout(()=>nextPopTarget(),800);
+  if(popTimer)clearInterval(popTimer);
+  popTimer=setInterval(spawnBalloon,900);
+  // 游戏倒计时
+  const timerInt=setInterval(()=>{
+    if(!document.getElementById('pop').classList.contains('active')){
+      clearInterval(timerInt);return;
+    }
+    popGameTime--;
+    if(popTimerEl)popTimerEl.textContent=popGameTime;
+    if(popGameTime<=0){
+      clearInterval(popTimer);
+      clearInterval(timerInt);
+      speak('时间到！',{rate:.8,pitch:1.1});
+      showReward(`时间到！得分：${popScore}`);
+    }
+  },1000);
+  // 停留在此页时才创建气球；离开就清除
+  const check=setInterval(()=>{
+    if(!document.getElementById('pop').classList.contains('active')){
+      clearInterval(popTimer);clearInterval(check);clearInterval(timerInt);balloonsEl.innerHTML='';
+    }
+  },500);
+}
+function nextPopTarget(){
+  const pool=[...SHENGMU,...YUNMU];
+  popTarget=pool[Math.floor(Math.random()*pool.length)][0];
+  popTargetEl.textContent=popTarget;
+  // 目标更换提示
+  sayPinyin(popTarget);
+  // 3秒后再次提醒目标
+  setTimeout(()=>sayPinyin(popTarget),3000);
+}
+function spawnBalloon(){
+  if(popGameTime<=0)return;
+  const pool=[...SHENGMU,...YUNMU];
+  const isTarget=Math.random()<.35;
+  const val=isTarget?popTarget:pool[Math.floor(Math.random()*pool.length)][0];
+  const b=document.createElement('button');
+  b.className='balloon';
+  b.textContent=val;
+  b.style.background=colors[Math.floor(Math.random()*colors.length)];
+  const w=balloonsEl.clientWidth||600;
+  b.style.left=(Math.random()*(w-100))+'px';
+  b.style.bottom='-120px';
+  const dur=6+Math.random()*4;
+  b.style.animationDuration=dur+'s';
+  b.addEventListener('click',()=>{
+    if(val===popTarget){
+      b.classList.add('pop');
+      popScore++;
+      popCombo++;
+      popScoreEl.textContent=popScore;
+      if(popComboEl){
+        popComboEl.textContent=popCombo;
+        popComboEl.parentElement.classList.remove('combo-pulse');
+        void popComboEl.parentElement.offsetWidth; // 触发重排
+        popComboEl.parentElement.classList.add('combo-pulse');
+      }
+      addStar(1);
+      // 连击语音鼓励
+      if(popCombo>=3)speak('太棒了',{rate:.9,pitch:1.3});
+      if(popCombo>=5)speak('厉害',{rate:.9,pitch:1.4});
+      if(popCombo>=10)speak('超厉害',{rate:.9,pitch:1.5});
+      if(popScore%5===0){showReward('太厉害了！');nextPopTarget();}
+    }else{
+      popCombo=0;
+      if(popComboEl)popComboEl.textContent=0;
+      // 读出错误气球的内容
+      sayPinyin(val);
+      // 错误提示
+      speak('不对哦',{rate:.9,pitch:1});
+      b.animate([{transform:'rotate(0)'},{transform:'rotate(-10deg)'},{transform:'rotate(10deg)'},{transform:'rotate(0)'}],{duration:300});
+    }
+  });
+  balloonsEl.appendChild(b);
+  setTimeout(()=>b.remove(),dur*1000+200);
+}
+
+/* ========== 四声调 ========== */
+const TONE_MAP={
+  a:['ā','á','ǎ','à'], o:['ō','ó','ǒ','ò'], e:['ē','é','ě','è'],
+  i:['ī','í','ǐ','ì'], u:['ū','ú','ǔ','ù'], 'ü':['ǖ','ǘ','ǚ','ǜ']
+};
+// 每个韵母 + 声调 对应的中文示例字（让 TTS 用中文读出正确声调）
+const TONE_DEMO={
+  a:['妈','麻','马','骂'],
+  o:['喔','哦','嚄','哦'],
+  e:['鹅','鹅','恶','饿'],
+  i:['衣','姨','椅','艺'],
+  u:['乌','无','五','雾'],
+  'ü':['淤','鱼','雨','玉']
+};
+const TONE_NAME=['一声（高高平）','二声（往上扬）','三声（弯一弯）','四声（往下降）'];
+const TONE_FLAG=['➖','↗️','✔️','↘️'];
+const TONE_SOUND={
+  a:['妈','麻','马','骂'],
+  o:['喔','哦','嚄','哦'],
+  e:['鹅','鹅','恶','饿'],
+  i:['衣','姨','椅','艺'],
+  u:['乌','无','五','雾'],
+  'ü':['淤','鱼','雨','玉']
+};
+document.querySelectorAll('.tp').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tp').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');renderTones(b.dataset.v);
+  });
+});
+function renderTones(v){
+  const arr=TONE_MAP[v]||TONE_MAP.a;
+  const demo=TONE_DEMO[v]||TONE_DEMO.a;
+  const sound=TONE_SOUND[v]||TONE_SOUND.a;
+  const box=document.getElementById('tones');
+  box.innerHTML='';
+  arr.forEach((ch,i)=>{
+    const c=document.createElement('div');
+    c.className='tone-card';
+    c.innerHTML=`<div class="tv">${ch}</div><div class="tl">${TONE_NAME[i]}</div><div class="flag">${TONE_FLAG[i]}</div><div class="tl" style="font-size:16px;margin-top:4px;">例：${demo[i]}</div>`;
+    c.addEventListener('click',()=>{
+      // 使用中文示例字发音，确保声调正确
+      speak(sound[i],{rate:.5,pitch:1.1});
+      // 再读一次声调名称帮助记忆
+      setTimeout(()=>speak(TONE_NAME[i].replace(/[（）、]/g,''),{rate:.7,pitch:1}),600);
+      c.animate([{transform:'scale(1)'},{transform:'scale(1.1) rotate(-3deg)'},{transform:'scale(1)'}],{duration:400});
+    });
+    box.appendChild(c);
+  });
+  // 切换韵母时播放提示
+  const vNameMap={a:'啊',o:'喔',e:'鹅',i:'衣',u:'乌',ü:'迂'};
+  speak(vNameMap[v]||'a',{rate:.8,pitch:1.2});
+}
+
+/* ========== 弹层 ========== */
+const modal=document.getElementById('rewardModal');
+document.getElementById('rewardClose').addEventListener('click',()=>{
+  modal.classList.remove('show');
+  speak('继续加油',{rate:.9,pitch:1.2});
+});
+function showReward(text){
+  modal.querySelector('.reward-text').textContent=text||'太棒了！';
+  modal.classList.add('show');
+  addStar(2);
+  // 播放鼓励语音
+  speak(text,{rate:.9,pitch:1.3});
+}
+
+/* 初始 */
+renderLearn('shengmu');
+</script>
+</body>
+</html>
