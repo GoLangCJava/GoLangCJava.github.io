@@ -1,15 +1,637 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>clawdbot-react</title>
-    <script type="module" crossorigin src="/assets/index-CPifzVjZ.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/vendor-C46vGCqm.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BNx3wZBG.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特价审批系统 | SPAS</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9;--bg-card:#fff;--bg-sidebar:#0f172a;--bg-sidebar-hover:#1e293b;
+  --border:#e2e8f0;--border-active:#3b82f6;
+  --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;--text-sidebar:#cbd5e1;
+  --blue:#3b82f6;--blue-light:#eff6ff;--blue-bg:rgba(59,130,246,.08);
+  --green:#10b981;--green-light:#ecfdf5;--green-bg:rgba(16,185,129,.08);
+  --amber:#f59e0b;--amber-light:#fffbeb;--amber-bg:rgba(245,158,11,.08);
+  --red:#ef4444;--red-light:#fef2f2;--red-bg:rgba(239,68,68,.08);
+  --purple:#8b5cf6;--purple-light:#f5f3ff;
+  --cyan:#06b6d4;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.1);
+  --radius:8px;--radius-lg:12px;
+  --font:'IBM Plex Sans','Noto Sans SC',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --transition:.2s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--bg-sidebar);color:var(--text-sidebar);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.brand-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;font-family:var(--mono);letter-spacing:-0.5px;flex-shrink:0}
+.brand-text h1{font-size:14px;font-weight:600;color:#fff;letter-spacing:-.2px}
+.brand-text span{font-size:10px;color:var(--text-muted);font-family:var(--mono);letter-spacing:.5px}
+.sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:600;color:rgba(148,163,184,.6);text-transform:uppercase;letter-spacing:1.2px;padding:16px 12px 6px;font-family:var(--mono)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:all var(--transition);font-size:13px;font-weight:500;color:var(--text-sidebar);user-select:none;position:relative}
+.nav-item:hover{background:var(--bg-sidebar-hover);color:#fff}
+.nav-item.active{background:rgba(59,130,246,.15);color:#60a5fa}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0}
+.nav-item svg{width:18px;height:18px;opacity:.6;flex-shrink:0}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;font-family:var(--mono)}
+.sidebar-user{padding:16px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;color:#fff;flex-shrink:0}
+.user-meta{flex:1;min-width:0}
+.user-meta .name{font-size:12px;font-weight:600;color:#fff}
+.user-meta .role{font-size:10px;color:var(--text-muted)}
+
+/* MAIN */
+.main{flex:1;margin-left:240px;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{height:56px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:50}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px}
+.breadcrumb span{color:var(--text-muted)}
+.breadcrumb .current{color:var(--text);font-weight:500}
+.topbar-search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 14px;width:260px;transition:border-color var(--transition)}
+.topbar-search:focus-within{border-color:var(--blue)}
+.topbar-search input{background:none;border:none;outline:none;color:var(--text);font-size:12px;width:100%;font-family:var(--font)}
+.topbar-search input::placeholder{color:var(--text-muted)}
+.topbar-search svg{width:14px;height:14px;color:var(--text-muted);flex-shrink:0}
+.topbar-actions{display:flex;gap:4px}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--transition);color:var(--text-secondary);position:relative}
+.icon-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.icon-btn svg{width:16px;height:16px}
+.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--red);border-radius:50%}
+
+/* PAGE */
+.page{padding:24px;flex:1}
+.view{display:none}.view.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:all var(--transition);position:relative;overflow:hidden}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.stat-card .accent-line{position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card:nth-child(1) .accent-line{background:var(--blue)}
+.stat-card:nth-child(2) .accent-line{background:var(--amber)}
+.stat-card:nth-child(3) .accent-line{background:var(--green)}
+.stat-card:nth-child(4) .accent-line{background:var(--purple)}
+.stat-label{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:.3px;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;font-family:var(--mono);letter-spacing:-1px;margin-bottom:4px}
+.stat-card:nth-child(1) .stat-value{color:var(--blue)}
+.stat-card:nth-child(2) .stat-value{color:var(--amber)}
+.stat-card:nth-child(3) .stat-value{color:var(--green)}
+.stat-card:nth-child(4) .stat-value{color:var(--purple)}
+.stat-trend{font-size:11px;display:flex;align-items:center;gap:4px}
+.stat-trend.up{color:var(--green)}.stat-trend.down{color:var(--red)}
+
+/* DIVISIONS */
+.divisions{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.div-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;cursor:pointer;transition:all var(--transition)}
+.div-card:hover{box-shadow:var(--shadow-md);border-color:var(--blue);transform:translateY(-1px)}
+.div-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.div-card:nth-child(1) .div-icon{background:var(--blue-bg);color:var(--blue)}
+.div-card:nth-child(2) .div-icon{background:var(--green-bg);color:var(--green)}
+.div-card:nth-child(3) .div-icon{background:var(--amber-bg);color:var(--amber)}
+.div-card:nth-child(4) .div-icon{background:var(--purple-light);color:var(--purple)}
+.div-icon svg{width:20px;height:20px}
+.div-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.div-en{font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-bottom:12px}
+.div-stats{display:flex;gap:14px}
+.div-stat{font-size:11px}.div-stat .l{color:var(--text-muted)}.div-stat .v{font-family:var(--mono);font-weight:600}
+
+/* PANELS */
+.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px}
+.panel-head{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);gap:10px}
+.panel-title{font-size:14px;font-weight:600}
+.panel-sub{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.panel-actions{margin-left:auto;display:flex;gap:8px}
+.panel-body{padding:20px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;transition:all var(--transition);border:1px solid transparent;font-family:var(--font);white-space:nowrap}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#2563eb;box-shadow:0 4px 12px rgba(59,130,246,.3)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.btn-success{background:var(--green-bg);color:var(--green);border-color:rgba(16,185,129,.25)}
+.btn-success:hover{background:rgba(16,185,129,.15)}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:rgba(239,68,68,.25)}
+.btn-danger:hover{background:rgba(239,68,68,.15)}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:10px 14px;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono);border-bottom:1px solid var(--border);background:var(--bg)}
+.tbl td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tbody tr{transition:background var(--transition)}
+.tbl tbody tr:hover{background:var(--blue-light)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.badge .dot{width:6px;height:6px;border-radius:50%}
+.b-pending{background:var(--amber-bg);color:var(--amber)}.b-pending .dot{background:var(--amber)}
+.b-approved{background:var(--green-bg);color:var(--green)}.b-approved .dot{background:var(--green)}
+.b-rejected{background:var(--red-bg);color:var(--red)}.b-rejected .dot{background:var(--red)}
+.b-review{background:var(--blue-bg);color:var(--blue)}.b-review .dot{background:var(--blue)}
+.b-draft{background:rgba(100,116,139,.08);color:var(--text-secondary)}.b-draft .dot{background:var(--text-secondary)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:600;color:var(--text-secondary);letter-spacing:.3px;font-family:var(--mono)}
+.fg label .req{color:var(--red)}
+.fi,.fs,.ft{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font);transition:border-color var(--transition);outline:none;width:100%}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
+.fs{cursor:pointer;appearance:auto}.ft{resize:vertical;min-height:70px}
+
+/* FILTER */
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all var(--transition);user-select:none}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.show{opacity:1;pointer-events:auto}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);width:560px;max-width:92vw;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:scale(.96) translateY(8px);transition:transform .2s}
+.modal-bg.show .modal{transform:scale(1) translateY(0)}
+.modal-head{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal-head h3{font-size:15px;font-weight:600}
+.modal-x{margin-left:auto;width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition)}
+.modal-x:hover{background:var(--red-bg);color:var(--red)}
+.modal-body{padding:20px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
+
+/* FLOW TIMELINE */
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:10px;top:6px;bottom:6px;width:2px;background:var(--border)}
+.tl-step{position:relative;padding-bottom:22px}.tl-step:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-30px;top:1px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1}
+.tl-dot.done{background:var(--green);color:#fff}
+.tl-dot.now{background:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(59,130,246,.2);animation:pulse 2s infinite}
+.tl-dot.wait{background:var(--bg);border:2px solid var(--border);color:var(--text-muted)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(59,130,246,.2)}50%{box-shadow:0 0 0 8px rgba(59,130,246,.08)}}
+.tl-dot svg{width:11px;height:11px}
+.tl-info h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.tl-info p{font-size:11px;color:var(--text-muted)}
+.tl-info .tl-time{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 20px}
+.tab{padding:11px 16px;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all var(--transition);user-select:none}
+.tab:hover{color:var(--text-secondary)}.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* CHART */
+.chart{height:120px;display:flex;align-items:flex-end;gap:3px;padding:0 2px}
+.bar{flex:1;border-radius:3px 3px 0 0;transition:all .4s cubic-bezier(.4,0,.2,1);cursor:pointer;position:relative;min-width:6px}
+.bar:hover{filter:brightness(1.15)}
+.bar::after{content:attr(data-v);position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9px;font-family:var(--mono);color:var(--text-muted);opacity:0;transition:opacity var(--transition)}
+.bar:hover::after{opacity:1}
+
+/* TWO COL */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* SIM */
+.sim-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:14px}
+.sim-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+.sim-row .sl{color:var(--text-secondary)}.sim-row .sv{font-family:var(--mono);font-weight:600}
+.sim-row.hl .sv{color:var(--blue);font-size:16px}
+.sim-row.warn .sv{color:var(--amber)}.sim-row.danger .sv{color:var(--red)}
+.progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* PREDICTION */
+.pred-card{background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(6,182,212,.04));border:1px solid rgba(59,130,246,.15);border-radius:var(--radius-lg);padding:24px;text-align:center}
+.pred-val{font-size:38px;font-weight:700;font-family:var(--mono);background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0}
+.pred-label{font-size:12px;color:var(--text-muted)}
+.pred-range{display:flex;justify-content:center;gap:24px;margin-top:10px}
+.pred-range .ri{text-align:center}
+.pred-range .rl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.pred-range .rv{font-family:var(--mono);font-size:14px;font-weight:600;margin-top:2px}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-size:16px;font-weight:600}
+.sec-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+/* TOAST */
+.toasts{position:fixed;top:68px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;box-shadow:var(--shadow-lg);animation:slideR .3s ease;min-width:260px}
+.toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--blue)}
+@keyframes slideR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+
+/* RESPONSIVE */
+@media(max-width:1200px){.stats,.divisions{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.stats,.divisions{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- APP -->
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">SP</div>
+      <div class="brand-text"><h1>特价审批系统</h1><span>SPECIAL PRICE APPROVAL</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">核心功能</div>
+      <div class="nav-item active" data-page="dashboard" onclick="go('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        工作台
+      </div>
+      <div class="nav-item" data-page="apply" onclick="go('apply')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        特价申请<span class="nav-badge">5</span>
+      </div>
+      <div class="nav-item" data-page="approval" onclick="go('approval')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        审批管理<span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" data-page="contract" onclick="go('contract')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        合同管理
+      </div>
+      <div class="nav-item" data-page="orders" onclick="go('orders')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        中立订单
+      </div>
+      <div class="nav-label">分析工具</div>
+      <div class="nav-item" data-page="profit" onclick="go('profit')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        利润模拟
+      </div>
+      <div class="nav-item" data-page="predict" onclick="go('predict')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+        价格预测
+      </div>
+      <div class="nav-label">系统</div>
+      <div class="nav-item" data-page="trace" onclick="go('trace')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+        流程追溯
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">MK</div>
+      <div class="user-meta"><div class="name">Michael König</div><div class="role">高级审批经理</div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div class="breadcrumb"><span>首页</span><span>/</span><span class="current" id="bc">工作台</span></div>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="搜索申请编号、客户名称..." />
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="通知"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-dot"></span></button>
+        <button class="icon-btn" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      </div>
+    </header>
+
+    <div class="page">
+      <!-- DASHBOARD -->
+      <div class="view active" id="v-dashboard">
+        <div class="stats">
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">本月申请总数</div><div class="stat-value">1,247</div><div class="stat-trend up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/></svg>+12.5% vs 上月</div></div>
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">待审批</div><div class="stat-value">86</div><div class="stat-trend down"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,18 13.5,8.5 8.5,13.5 1,6"/></svg>-3.2% vs 上月</div></div>
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">平均审批时长</div><div class="stat-value">2.4h</div><div class="stat-trend up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/></svg>效率提升 18%</div></div>
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">审批通过率</div><div class="stat-value">94.2%</div><div class="stat-trend up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/></svg>+1.8% vs 上月</div></div>
+        </div>
+        <div class="sec-head"><div><div class="sec-title">业务部门概览</div><div class="sec-desc">四大核心业务部门实时数据</div></div></div>
+        <div class="divisions">
+          <div class="div-card" onclick="go('apply')"><div class="div-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="div-name">工程自动化</div><div class="div-en">Engineering Automation</div><div class="div-stats"><div class="div-stat"><span class="l">申请 </span><span class="v">342</span></div><div class="div-stat"><span class="l">待审 </span><span class="v">24</span></div><div class="div-stat"><span class="l">通过率 </span><span class="v">95%</span></div></div></div>
+          <div class="div-card" onclick="go('apply')"><div class="div-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><div class="div-name">运动控制</div><div class="div-en">Motion Control</div><div class="div-stats"><div class="div-stat"><span class="l">申请 </span><span class="v">298</span></div><div class="div-stat"><span class="l">待审 </span><span class="v">18</span></div><div class="div-stat"><span class="l">通过率 </span><span class="v">93%</span></div></div></div>
+          <div class="div-card" onclick="go('apply')"><div class="div-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="div-name">过程自动化</div><div class="div-en">Process Automation</div><div class="div-stats"><div class="div-stat"><span class="l">申请 </span><span class="v">356</span></div><div class="div-stat"><span class="l">待审 </span><span class="v">31</span></div><div class="div-stat"><span class="l">通过率 </span><span class="v">92%</span></div></div></div>
+          <div class="div-card" onclick="go('apply')"><div class="div-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="div-name">电气化</div><div class="div-en">Electrification</div><div class="div-stats"><div class="div-stat"><span class="l">申请 </span><span class="v">251</span></div><div class="div-stat"><span class="l">待审 </span><span class="v">13</span></div><div class="div-stat"><span class="l">通过率 </span><span class="v">96%</span></div></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">最近申请</div><div class="panel-actions"><button class="btn btn-ghost btn-sm" onclick="go('apply')">查看全部</button></div></div>
+            <table class="tbl"><thead><tr><th>编号</th><th>客户</th><th>部门</th><th>状态</th></tr></thead><tbody>
+              <tr><td style="font-family:var(--mono);font-size:12px">SP-2026-1247</td><td>Siemens AG</td><td>工程自动化</td><td><span class="badge b-review"><span class="dot"></span>审批中</span></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:12px">SP-2026-1246</td><td>BASF SE</td><td>过程自动化</td><td><span class="badge b-pending"><span class="dot"></span>待审批</span></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:12px">SP-2026-1245</td><td>BMW Group</td><td>运动控制</td><td><span class="badge b-approved"><span class="dot"></span>已通过</span></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:12px">SP-2026-1244</td><td>Schneider Electric</td><td>电气化</td><td><span class="badge b-approved"><span class="dot"></span>已通过</span></td></tr>
+              <tr><td style="font-family:var(--mono);font-size:12px">SP-2026-1243</td><td>ABB Ltd</td><td>运动控制</td><td><span class="badge b-rejected"><span class="dot"></span>已驳回</span></td></tr>
+            </tbody></table>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">月度趋势</div><div class="panel-sub">近12个月申请量</div></div>
+            <div class="panel-body"><div class="chart" id="chart-month"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPLICATIONS -->
+      <div class="view" id="v-apply">
+        <div class="sec-head"><div><div class="sec-title">特价申请</div><div class="sec-desc">管理所有部门的特价申请记录</div></div><button class="btn btn-primary" onclick="openModal('m-new')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新建申请</button></div>
+        <div class="filters">
+          <span class="chip active" onclick="filterApps(this,'all')">全部</span>
+          <span class="chip" onclick="filterApps(this,'pending')">待审批</span>
+          <span class="chip" onclick="filterApps(this,'review')">审批中</span>
+          <span class="chip" onclick="filterApps(this,'approved')">已通过</span>
+          <span class="chip" onclick="filterApps(this,'rejected')">已驳回</span>
+          <span class="chip" onclick="filterApps(this,'draft')">草稿</span>
+        </div>
+        <div class="panel"><table class="tbl" id="tbl-apps"><thead><tr><th>申请编号</th><th>客户名称</th><th>业务部门</th><th>产品类别</th><th>原价(EUR)</th><th>特价(EUR)</th><th>折扣率</th><th>状态</th><th>操作</th></tr></thead><tbody id="tbody-apps"></tbody></table></div>
+      </div>
+
+      <!-- APPROVAL -->
+      <div class="view" id="v-approval">
+        <div class="sec-head"><div><div class="sec-title">审批管理</div><div class="sec-desc">处理待审批的特价申请</div></div></div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><div class="panel-title">待我审批</div><div class="panel-sub" id="appr-count">3 项待处理</div></div><div id="appr-list"></div></div>
+          <div class="panel"><div class="panel-head"><div class="panel-title">审批流程</div><div class="panel-sub" id="flow-id">选择申请查看详情</div></div><div class="panel-body"><div class="timeline" id="flow-tl"><div class="tl-step"><div class="tl-dot wait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div><div class="tl-info"><h4>请选择左侧申请</h4><p>查看审批流程详情</p></div></div></div></div></div>
+        </div>
+      </div>
+
+      <!-- CONTRACTS -->
+      <div class="view" id="v-contract">
+        <div class="sec-head"><div><div class="sec-title">合同管理</div><div class="sec-desc">管理已审批通过的特价合同</div></div><button class="btn btn-ghost" onclick="toast('info','合同导出功能已启动')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出报表</button></div>
+        <div class="panel"><table class="tbl"><thead><tr><th>合同编号</th><th>客户</th><th>部门</th><th>合同金额</th><th>有效期</th><th>状态</th></tr></thead><tbody>
+          <tr><td style="font-family:var(--mono);font-size:12px">CT-2026-0089</td><td>Siemens AG</td><td>工程自动化</td><td style="font-family:var(--mono)">€ 2,450,000</td><td>2026-01 ~ 2026-12</td><td><span class="badge b-approved"><span class="dot"></span>执行中</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">CT-2026-0088</td><td>BMW Group</td><td>运动控制</td><td style="font-family:var(--mono)">€ 1,890,000</td><td>2026-03 ~ 2027-02</td><td><span class="badge b-approved"><span class="dot"></span>执行中</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">CT-2026-0087</td><td>BASF SE</td><td>过程自动化</td><td style="font-family:var(--mono)">€ 3,120,000</td><td>2026-02 ~ 2026-08</td><td><span class="badge b-pending"><span class="dot"></span>待续签</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">CT-2026-0086</td><td>Schneider Electric</td><td>电气化</td><td style="font-family:var(--mono)">€ 980,000</td><td>2025-06 ~ 2026-05</td><td><span class="badge b-pending"><span class="dot"></span>待续签</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">CT-2025-0085</td><td>Volkswagen AG</td><td>工程自动化</td><td style="font-family:var(--mono)">€ 4,200,000</td><td>2025-01 ~ 2025-12</td><td><span class="badge b-draft"><span class="dot"></span>已到期</span></td></tr>
+        </tbody></table></div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="view" id="v-orders">
+        <div class="sec-head"><div><div class="sec-title">中立订单</div><div class="sec-desc">管理待确认的中立订单</div></div></div>
+        <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">待确认订单</div><div class="stat-value">34</div></div>
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">本月已确认</div><div class="stat-value">128</div></div>
+          <div class="stat-card"><div class="accent-line"></div><div class="stat-label">订单总金额</div><div class="stat-value" style="font-size:22px">€ 12.8M</div></div>
+        </div>
+        <div class="panel"><table class="tbl"><thead><tr><th>订单号</th><th>客户</th><th>部门</th><th>金额</th><th>创建日期</th><th>状态</th></tr></thead><tbody>
+          <tr><td style="font-family:var(--mono);font-size:12px">NO-20260701-001</td><td>Daimler Truck</td><td>运动控制</td><td style="font-family:var(--mono)">€ 156,000</td><td>2026-07-01</td><td><span class="badge b-pending"><span class="dot"></span>待确认</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">NO-20260701-002</td><td>Thyssenkrupp</td><td>过程自动化</td><td style="font-family:var(--mono)">€ 89,500</td><td>2026-07-01</td><td><span class="badge b-pending"><span class="dot"></span>待确认</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">NO-20260630-003</td><td>Continental AG</td><td>工程自动化</td><td style="font-family:var(--mono)">€ 234,000</td><td>2026-06-30</td><td><span class="badge b-approved"><span class="dot"></span>已确认</span></td></tr>
+          <tr><td style="font-family:var(--mono);font-size:12px">NO-20260630-004</td><td>ZF Friedrichshafen</td><td>电气化</td><td style="font-family:var(--mono)">€ 178,200</td><td>2026-06-30</td><td><span class="badge b-approved"><span class="dot"></span>已确认</span></td></tr>
+        </tbody></table></div>
+      </div>
+
+      <!-- PROFIT SIM -->
+      <div class="view" id="v-profit">
+        <div class="sec-head"><div><div class="sec-title">利润模拟</div><div class="sec-desc">模拟特价方案对利润的影响</div></div></div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><div class="panel-title">模拟参数</div></div><div class="panel-body">
+            <div class="form-grid" style="grid-template-columns:1fr">
+              <div class="fg"><label>产品标准售价 (EUR)</label><input class="fi" type="number" id="s-price" value="100000" oninput="sim()"></div>
+              <div class="fg"><label>产品成本 (EUR)</label><input class="fi" type="number" id="s-cost" value="65000" oninput="sim()"></div>
+              <div class="fg"><label>申请折扣 (%)</label><input type="range" id="s-disc" min="0" max="40" value="15" style="accent-color:var(--blue)" oninput="sim();document.getElementById('dv').textContent=this.value+'%'"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-family:var(--mono)"><span>0%</span><span id="dv">15%</span><span>40%</span></div></div>
+              <div class="fg"><label>预计年销量 (件)</label><input class="fi" type="number" id="s-vol" value="500" oninput="sim()"></div>
+            </div>
+          </div></div>
+          <div class="panel"><div class="panel-head"><div class="panel-title">模拟结果</div></div><div class="panel-body"><div class="sim-box" id="sim-out"></div></div></div>
+        </div>
+      </div>
+
+      <!-- PREDICTION -->
+      <div class="view" id="v-predict">
+        <div class="sec-head"><div><div class="sec-title">价格预测</div><div class="sec-desc">基于历史数据的智能价格趋势预测</div></div></div>
+        <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+          <div class="pred-card"><div class="pred-label">工程自动化 — 预测均价</div><div class="pred-val">€84,200</div><div class="pred-range"><div class="ri"><div class="rl">最低</div><div class="rv" style="color:var(--cyan)">€78,500</div></div><div class="ri"><div class="rl">预测</div><div class="rv" style="color:var(--blue)">€84,200</div></div><div class="ri"><div class="rl">最高</div><div class="rv" style="color:var(--amber)">€91,000</div></div></div></div>
+          <div class="pred-card"><div class="pred-label">运动控制 — 预测均价</div><div class="pred-val">€62,800</div><div class="pred-range"><div class="ri"><div class="rl">最低</div><div class="rv" style="color:var(--cyan)">€58,200</div></div><div class="ri"><div class="rl">预测</div><div class="rv" style="color:var(--blue)">€62,800</div></div><div class="ri"><div class="rl">最高</div><div class="rv" style="color:var(--amber)">€68,400</div></div></div></div>
+          <div class="pred-card"><div class="pred-label">过程自动化 — 预测均价</div><div class="pred-val">€115,600</div><div class="pred-range"><div class="ri"><div class="rl">最低</div><div class="rv" style="color:var(--cyan)">€108,000</div></div><div class="ri"><div class="rl">预测</div><div class="rv" style="color:var(--blue)">€115,600</div></div><div class="ri"><div class="rl">最高</div><div class="rv" style="color:var(--amber)">€124,800</div></div></div></div>
+        </div>
+        <div class="panel"><div class="panel-head"><div class="panel-title">价格趋势预测</div><div class="panel-sub">未来6个月</div></div><div class="panel-body"><div class="chart" id="chart-pred" style="height:150px"></div></div></div>
+      </div>
+
+      <!-- TRACE -->
+      <div class="view" id="v-trace">
+        <div class="sec-head"><div><div class="sec-title">流程追溯</div><div class="sec-desc">全流程审批记录追溯与审计</div></div></div>
+        <div style="display:flex;gap:10px;margin-bottom:14px"><input class="fi" type="text" placeholder="输入申请编号查询，如 SP-2026-1247" style="width:320px" id="trace-q"><button class="btn btn-primary" onclick="doTrace()">查询</button></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title">追溯记录</div></div><div class="panel-body"><div class="timeline" id="trace-tl"></div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: NEW APP -->
+<div class="modal-bg" id="m-new">
+  <div class="modal">
+    <div class="modal-head"><h3>新建特价申请</h3><button class="modal-x" onclick="closeModal('m-new')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg"><label>业务部门 <span class="req">*</span></label><select class="fs" id="f-dept"><option value="">请选择</option><option>工程自动化</option><option>运动控制</option><option>过程自动化</option><option>电气化</option></select></div>
+        <div class="fg"><label>客户名称 <span class="req">*</span></label><input class="fi" type="text" id="f-cust" placeholder="输入客户名称"></div>
+        <div class="fg"><label>产品类别 <span class="req">*</span></label><select class="fs" id="f-prod"><option value="">请选择</option><option>PLC 控制器</option><option>伺服驱动器</option><option>变频器</option><option>HMI 面板</option><option>传感器模块</option><option>工业交换机</option></select></div>
+        <div class="fg"><label>标准售价 (EUR) <span class="req">*</span></label><input class="fi" type="number" id="f-op" placeholder="0.00"></div>
+        <div class="fg"><label>申请特价 (EUR) <span class="req">*</span></label><input class="fi" type="number" id="f-np" placeholder="0.00"></div>
+        <div class="fg"><label>预计年用量</label><input class="fi" type="number" id="f-vol" placeholder="0"></div>
+        <div class="fg full"><label>申请说明</label><textarea class="ft" id="f-note" placeholder="请输入特价申请原因及商务背景..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('m-new')">取消</button><button class="btn btn-ghost" onclick="saveDraft()">保存草稿</button><button class="btn btn-primary" onclick="submitApp()">提交申请</button></div>
+  </div>
+</div>
+
+<!-- MODAL: DETAIL -->
+<div class="modal-bg" id="m-detail">
+  <div class="modal" style="width:620px">
+    <div class="modal-head"><h3 id="det-title">申请详情</h3><button class="modal-x" onclick="closeModal('m-detail')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="det-body"></div>
+    <div class="modal-foot" id="det-foot"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script>
+// === DATA ===
+const apps=[
+  {id:'SP-2026-1247',cust:'Siemens AG',dept:'工程自动化',prod:'PLC 控制器',op:120000,np:96000,vol:800,st:'review',dt:'2026-07-04'},
+  {id:'SP-2026-1246',cust:'BASF SE',dept:'过程自动化',prod:'变频器',op:85000,np:68000,vol:350,st:'pending',dt:'2026-07-04'},
+  {id:'SP-2026-1245',cust:'BMW Group',dept:'运动控制',prod:'伺服驱动器',op:65000,np:54600,vol:1200,st:'approved',dt:'2026-07-03'},
+  {id:'SP-2026-1244',cust:'Schneider Electric',dept:'电气化',prod:'工业交换机',op:42000,np:35700,vol:600,st:'approved',dt:'2026-07-03'},
+  {id:'SP-2026-1243',cust:'ABB Ltd',dept:'运动控制',prod:'伺服驱动器',op:78000,np:54600,vol:200,st:'rejected',dt:'2026-07-02'},
+  {id:'SP-2026-1242',cust:'Volkswagen AG',dept:'工程自动化',prod:'HMI 面板',op:28000,np:23800,vol:450,st:'pending',dt:'2026-07-02'},
+  {id:'SP-2026-1241',cust:'Daimler Truck',dept:'运动控制',prod:'PLC 控制器',op:115000,np:97750,vol:300,st:'review',dt:'2026-07-01'},
+  {id:'SP-2026-1240',cust:'Thyssenkrupp',dept:'过程自动化',prod:'传感器模块',op:18500,np:15725,vol:2000,st:'approved',dt:'2026-07-01'},
+  {id:'SP-2026-1239',cust:'Continental AG',dept:'工程自动化',prod:'PLC 控制器',op:120000,np:102000,vol:550,st:'draft',dt:'2026-06-30'},
+  {id:'SP-2026-1238',cust:'ZF Friedrichshafen',dept:'电气化',prod:'变频器',op:92000,np:78200,vol:400,st:'pending',dt:'2026-06-30'},
+];
+const SM={pending:{l:'待审批',c:'b-pending'},review:{l:'审批中',c:'b-review'},approved:{l:'已通过',c:'b-approved'},rejected:{l:'已驳回',c:'b-rejected'},draft:{l:'草稿',c:'b-draft'}};
+const PN={dashboard:'工作台',apply:'特价申请',approval:'审批管理',contract:'合同管理',orders:'中立订单',profit:'利润模拟',predict:'价格预测',trace:'流程追溯'};
+
+// === NAV ===
+function go(p){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('v-'+p).classList.add('active');
+  document.querySelector(`.nav-item[data-page="${p}"]`).classList.add('active');
+  document.getElementById('bc').textContent=PN[p]||p;
+}
+
+// === RENDER TABLE ===
+function renderTbl(f){
+  const tb=document.getElementById('tbody-apps');
+  const list=f&&f!=='all'?apps.filter(a=>a.st===f):apps;
+  tb.innerHTML=list.map(a=>{
+    const s=SM[a.st],d=Math.round((1-a.np/a.op)*100);
+    const dc=d>25?'var(--red)':d>15?'var(--amber)':'var(--green)';
+    return `<tr><td style="font-family:var(--mono);font-size:12px;cursor:pointer;color:var(--blue)" onclick="showDet('${a.id}')">${a.id}</td><td>${a.cust}</td><td>${a.dept}</td><td>${a.prod}</td><td style="font-family:var(--mono)">€${a.op.toLocaleString()}</td><td style="font-family:var(--mono)">€${a.np.toLocaleString()}</td><td style="font-family:var(--mono);color:${dc}">${d}%</td><td><span class="badge ${s.c}"><span class="dot"></span>${s.l}</span></td><td><button class="btn btn-ghost btn-sm" onclick="showDet('${a.id}')">详情</button></td></tr>`;
+  }).join('');
+}
+function filterApps(el,f){document.querySelectorAll('.filters .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderTbl(f)}
+
+// === DETAIL ===
+function showDet(id){
+  const a=apps.find(x=>x.id===id);if(!a)return;
+  const s=SM[a.st],d=Math.round((1-a.np/a.op)*100);
+  document.getElementById('det-title').textContent='申请详情 — '+a.id;
+  document.getElementById('det-body').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin-bottom:16px">
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">客户名称</span><div style="font-size:14px;font-weight:500;margin-top:2px">${a.cust}</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">业务部门</span><div style="font-size:14px;font-weight:500;margin-top:2px">${a.dept}</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">产品类别</span><div style="font-size:14px;font-weight:500;margin-top:2px">${a.prod}</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">申请日期</span><div style="font-size:14px;font-weight:500;margin-top:2px;font-family:var(--mono)">${a.dt}</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">标准售价</span><div style="font-size:14px;font-weight:500;margin-top:2px;font-family:var(--mono)">€${a.op.toLocaleString()}</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">申请特价</span><div style="font-size:14px;font-weight:500;margin-top:2px;font-family:var(--mono)">€${a.np.toLocaleString()}</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">折扣率</span><div style="font-size:14px;font-weight:500;margin-top:2px;font-family:var(--mono);color:${d>25?'var(--red)':'var(--amber)'}">${d}%</div></div>
+    <div><span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">预计年用量</span><div style="font-size:14px;font-weight:500;margin-top:2px;font-family:var(--mono)">${a.vol.toLocaleString()} 件</div></div>
+  </div><div style="border-top:1px solid var(--border);padding-top:14px"><div style="font-size:12px;font-weight:600;margin-bottom:10px">审批状态</div><span class="badge ${s.c}" style="font-size:13px;padding:5px 14px"><span class="dot"></span>${s.l}</span></div>`;
+  const ok=a.st==='pending'||a.st==='review';
+  document.getElementById('det-foot').innerHTML=`<button class="btn btn-ghost" onclick="closeModal('m-detail')">关闭</button>${ok?`<button class="btn btn-danger" onclick="doReject('${a.id}')">驳回</button><button class="btn btn-success" onclick="doApprove('${a.id}')">通过</button>`:''}`;
+  openModal('m-detail');
+}
+function doApprove(id){const a=apps.find(x=>x.id===id);if(a){a.st='approved';renderTbl('all');renderAppr()}closeModal('m-detail');toast('success','申请 '+id+' 已通过审批')}
+function doReject(id){const a=apps.find(x=>x.id===id);if(a){a.st='rejected';renderTbl('all');renderAppr()}closeModal('m-detail');toast('error','申请 '+id+' 已驳回')}
+
+// === APPROVAL LIST ===
+function renderAppr(){
+  const p=apps.filter(a=>a.st==='pending'||a.st==='review');
+  const c=document.getElementById('appr-list');
+  document.getElementById('appr-count').textContent=p.length+' 项待处理';
+  if(!p.length){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px">暂无待审批项目</div>';return}
+  c.innerHTML=p.map(a=>{const s=SM[a.st],d=Math.round((1-a.np/a.op)*100);return `<div style="padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''" onclick="showFlow('${a.id}')">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--mono);font-size:12px;color:var(--blue)">${a.id}</span><span class="badge ${s.c}"><span class="dot"></span>${s.l}</span></div>
+    <div style="font-size:13px;font-weight:500">${a.cust} — ${a.prod}</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:3px">${a.dept} · 折扣 ${d}% · €${a.np.toLocaleString()}</div></div>`}).join('');
+}
+function showFlow(id){
+  const a=apps.find(x=>x.id===id);if(!a)return;
+  document.getElementById('flow-id').textContent=a.id;
+  const steps=[
+    {t:'销售提交申请',d:a.cust+' — '+a.prod,tm:a.dt+' 09:15',s:'done'},
+    {t:'部门经理审核',d:'Engineering Dept. Manager',tm:a.dt+' 11:32',s:'done'},
+    {t:'财务利润校验',d:'Margin check: '+Math.round((1-a.np/a.op)*100)+'% discount',tm:a.dt+' 14:08',s:a.st==='review'?'now':'done'},
+    {t:'高级审批经理审批',d:'Michael König',tm:a.st==='review'?'等待中':'—',s:a.st==='review'?'wait':'done'},
+    {t:'审批完成 / 合同生成',d:'系统自动归档',tm:'—',s:'wait'},
+  ];
+  if(a.st==='pending'){steps[2].s='wait';steps[1].s='now'}
+  document.getElementById('flow-tl').innerHTML=steps.map(s=>{
+    const ic=s.s==='done'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>':s.s==='now'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+    return `<div class="tl-step"><div class="tl-dot ${s.s}">${ic}</div><div class="tl-info"><h4>${s.t}</h4><p>${s.d}</p><div class="tl-time">${s.tm}</div></div></div>`}).join('');
+}
+
+// === MODAL ===
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+// === NEW APP ===
+function submitApp(){
+  const dept=document.getElementById('f-dept').value,cust=document.getElementById('f-cust').value,prod=document.getElementById('f-prod').value,op=parseFloat(document.getElementById('f-op').value),np=parseFloat(document.getElementById('f-np').value),vol=parseInt(document.getElementById('f-vol').value)||0;
+  if(!dept||!cust||!prod||!op||!np){toast('error','请填写所有必填字段');return}
+  const id='SP-2026-'+(1248+apps.length-10);
+  apps.unshift({id,cust,dept,prod,op,np,vol,st:'pending',dt:'2026-07-05'});
+  renderTbl('all');renderAppr();closeModal('m-new');toast('success','申请 '+id+' 已提交');
+  ['f-dept','f-cust','f-prod','f-op','f-np','f-vol','f-note'].forEach(i=>{const e=document.getElementById(i);if(e.tagName==='SELECT')e.selectedIndex=0;else e.value=''});
+}
+function saveDraft(){
+  const dept=document.getElementById('f-dept').value||'—',cust=document.getElementById('f-cust').value||'未命名';
+  const id='SP-2026-'+(1248+apps.length-10);
+  apps.unshift({id,cust,dept,prod:'—',op:0,np:0,vol:0,st:'draft',dt:'2026-07-05'});
+  renderTbl('all');closeModal('m-new');toast('info','草稿 '+id+' 已保存');
+}
+
+// === TOAST ===
+function toast(type,msg){
+  const c=document.getElementById('toasts'),t=document.createElement('div');
+  t.className='toast '+type;
+  const ic=type==='success'?'✓':type==='error'?'✕':'ℹ';
+  t.innerHTML=`<span style="font-weight:700;font-size:14px">${ic}</span> ${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(30px)';t.style.transition='.3s ease';setTimeout(()=>t.remove(),300)},3000);
+}
+
+// === CHARTS ===
+function renderChart(id,data,color,max){
+  const el=document.getElementById(id);
+  el.innerHTML=data.map((v,i)=>{const h=v/max*100;const c=Array.isArray(color)?color[i]||color[0]:color;return `<div class="bar" data-v="${v}" style="height:${h}%;background:${c}"></div>`}).join('');
+}
+function initCharts(){
+  const m=[820,910,780,1050,1120,980,1200,1150,1080,1300,1180,1247];
+  const mx=Math.max(...m);
+  renderChart('chart-month',m,m.map((_,i)=>i===m.length-1?'var(--blue)':'rgba(59,130,246,.3)'),mx);
+  const p=[84,82,86,83,88,85,87,84,89,86,90,87,85,88,91,89,87,90];
+  const pmx=Math.max(...p);
+  const pc=p.map((_,i)=>i>=12?'var(--cyan)':'rgba(59,130,246,.35)');
+  renderChart('chart-pred',p,pc,pmx);
+}
+
+// === SIM ===
+function sim(){
+  const pr=parseFloat(document.getElementById('s-price').value)||0;
+  const co=parseFloat(document.getElementById('s-cost').value)||0;
+  const di=parseFloat(document.getElementById('s-disc').value)||0;
+  const vo=parseInt(document.getElementById('s-vol').value)||0;
+  const sp=pr*(1-di/100),mu=sp-co,mp=sp>0?(mu/sp*100):0;
+  const tr=sp*vo,tp=mu*vo,std=(pr-co)*vo,pl=tp-std;
+  const mc=mp>=30?'':mp>=20?'warn':'danger';
+  const pc=mp>=30?'var(--green)':mp>=20?'var(--amber)':'var(--red)';
+  document.getElementById('sim-out').innerHTML=`
+    <div class="sim-row"><span class="sl">特价单价</span><span class="sv">€${sp.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+    <div class="sim-row ${mc}"><span class="sl">单位利润率</span><span class="sv">${mp.toFixed(1)}%</span></div>
+    <div class="sim-row"><span class="sl">单位利润</span><span class="sv">€${mu.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+    <div class="sim-row"><span class="sl">年度总收入</span><span class="sv">€${tr.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+    <div class="sim-row hl"><span class="sl">年度总利润</span><span class="sv">€${tp.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+    <div class="sim-row ${pl<0?'danger':''}"><span class="sl">vs 标准价格利润差</span><span class="sv" style="color:${pl<0?'var(--red)':'var(--green)'}">€${pl.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+    <div style="margin-top:10px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">利润率指标</div><div class="progress"><div class="progress-fill" style="width:${Math.min(mp,100)}%;background:${pc}"></div></div></div>`;
+}
+
+// === TRACE ===
+function doTrace(){
+  const q=document.getElementById('trace-q').value.trim();
+  const a=apps.find(x=>x.id===q)||apps[0];
+  const evts=[
+    {t:'申请创建',d:a.cust+' 特价申请已创建',tm:a.dt+' 09:15:22',u:'Sales Team'},
+    {t:'自动校验通过',d:'系统校验：客户信用良好，历史交易正常',tm:a.dt+' 09:15:23',u:'System'},
+    {t:'部门经理审批',d:'审核通过，建议关注利润率',tm:a.dt+' 11:32:08',u:'Dept. Manager'},
+    {t:'财务审核',d:'折扣率 '+Math.round((1-a.np/a.op)*100)+'%，利润模拟通过',tm:a.dt+' 14:08:45',u:'Finance Team'},
+    {t:'高级审批',d:a.st==='approved'?'审批通过':a.st==='rejected'?'审批驳回':'等待审批',tm:a.st==='pending'||a.st==='review'?'—':a.dt+' 16:22:10',u:'Michael König'},
+    {t:a.st==='approved'?'合同已生成':'等待归档',d:a.st==='approved'?'合同编号 CT-2026-'+Math.floor(Math.random()*9000+1000):'—',tm:a.st==='approved'?a.dt+' 16:22:15':'—',u:'System'},
+  ];
+  document.getElementById('trace-tl').innerHTML=evts.map((e,i)=>{
+    const s=i<4?'done':(i===4&&(a.st==='pending'||a.st==='review'))?'now':(a.st==='approved'?'done':'wait');
+    const ic=s==='done'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>':s==='now'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+    return `<div class="tl-step"><div class="tl-dot ${s}">${ic}</div><div class="tl-info"><h4>${e.t}</h4><p>${e.d}</p><div class="tl-time">${e.tm} · ${e.u}</div></div></div>`}).join('');
+}
+
+// === INIT ===
+document.addEventListener('DOMContentLoaded',()=>{
+  renderTbl('all');renderAppr();initCharts();sim();doTrace();
+});
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
 </html>
