@@ -55,7 +55,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .user-meta .name{font-size:12px;font-weight:600;color:#fff}
 .user-meta .role{font-size:10px;color:var(--text-muted)}
 
-/* MAIN  */
+/* MAIN */
 .main{flex:1;margin-left:240px;display:flex;flex-direction:column}
 
 /* TOPBAR */
@@ -235,182 +235,93 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--blue)}
 @keyframes slideR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 
+/* LOGIN */
+.login-screen{position:fixed;inset:0;z-index:9999;background:#05070d;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden}
+.login-screen.hidden{display:none}
+#login-bg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+.login-screen::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(5,7,13,.55) 75%,rgba(5,7,13,.9) 100%);pointer-events:none;z-index:1}
+.login-grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(59,130,246,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.045) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:1;mask-image:radial-gradient(ellipse at center,#000 40%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse at center,#000 40%,transparent 80%)}
+.login-box{position:relative;z-index:2;background:linear-gradient(160deg,rgba(15,23,42,.72),rgba(15,23,42,.55));backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);border:1px solid rgba(96,165,250,.22);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset,0 0 60px rgba(59,130,246,.12);width:440px;max-width:100%;padding:38px 38px 30px;color:#e2e8f0;overflow:hidden}
+.login-box::before{content:'';position:absolute;top:-1px;left:-1px;right:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(96,165,250,.7),rgba(34,211,238,.7),transparent)}
+.login-box::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(96,165,250,.4),transparent)}
+.login-corner{position:absolute;width:18px;height:18px;border-color:rgba(96,165,250,.7);pointer-events:none}
+.login-corner.tl{top:10px;left:10px;border-top:1px solid;border-left:1px solid}
+.login-corner.tr{top:10px;right:10px;border-top:1px solid;border-right:1px solid}
+.login-corner.bl{bottom:10px;left:10px;border-bottom:1px solid;border-left:1px solid}
+.login-corner.br{bottom:10px;right:10px;border-bottom:1px solid;border-right:1px solid}
+.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px;position:relative}
+.login-brand .brand-logo{width:46px;height:46px;font-size:16px;border-radius:12px;box-shadow:0 8px 22px rgba(59,130,246,.35),0 0 0 1px rgba(96,165,250,.35) inset}
+.login-brand h1{font-size:15px;font-weight:600;letter-spacing:.2px;color:#f1f5f9}
+.login-brand span{font-size:10px;color:#64748b;font-family:var(--mono);letter-spacing:1px;display:block;margin-top:3px}
+.login-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:#22d3ee;letter-spacing:.6px}
+.login-status .dot{width:6px;height:6px;border-radius:50%;background:#22d3ee;box-shadow:0 0 8px #22d3ee;animation:pulseDot 1.8s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
+.login-title{font-size:22px;font-weight:600;margin-bottom:6px;color:#f8fafc;letter-spacing:-.3px}
+.login-title .accent{background:linear-gradient(90deg,#60a5fa,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.login-sub{font-size:12px;color:#94a3b8;margin-bottom:24px;font-family:var(--mono);letter-spacing:.3px}
+.login-field{margin-bottom:15px;position:relative}
+.login-field label{display:block;font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:1.4px;font-family:var(--mono);margin-bottom:7px;text-transform:uppercase}
+.login-field input{width:100%;background:rgba(15,23,42,.6);border:1px solid rgba(96,165,250,.22);border-radius:9px;padding:12px 14px 12px 40px;color:#f1f5f9;font-size:13px;font-family:var(--font);outline:none;transition:all var(--transition)}
+.login-field input::placeholder{color:#475569}
+.login-field input:focus{border-color:rgba(96,165,250,.7);background:rgba(15,23,42,.85);box-shadow:0 0 0 3px rgba(59,130,246,.16),0 0 20px rgba(59,130,246,.18)}
+.login-field .fld-icon{position:absolute;left:12px;top:calc(50% + 9px);transform:translateY(-50%);width:16px;height:16px;color:#60a5fa;opacity:.75;pointer-events:none}
+.login-btn{width:100%;background:linear-gradient(135deg,#3b82f6 0%,#0ea5e9 100%);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:var(--font);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:2px;position:relative;overflow:hidden;box-shadow:0 8px 26px rgba(59,130,246,.35),0 0 0 1px rgba(96,165,250,.4) inset}
+.login-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-100%);transition:transform .6s}
+.login-btn:hover:not(:disabled)::before{transform:translateX(100%)}
+.login-btn:hover:not(:disabled){box-shadow:0 12px 32px rgba(59,130,246,.5),0 0 0 1px rgba(96,165,250,.55) inset;transform:translateY(-1px)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-err{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.35);border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:14px;display:none;font-family:var(--mono)}
+.login-err.show{display:block}
+.login-foot{margin-top:22px;padding-top:16px;border-top:1px solid rgba(96,165,250,.14);font-size:10px;color:#475569;text-align:center;font-family:var(--mono);letter-spacing:1.2px;display:flex;justify-content:space-between}
+.login-foot .fk{color:#60a5fa}
+.login-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* RESPONSIVE */
 @media(max-width:1200px){.stats,.divisions{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
 @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.stats,.divisions{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
-
-/* ====== LOGIN · 赛博深空 ====== */
-.login-wrap{
-  position:fixed;inset:0;z-index:9999;
-  display:flex;align-items:center;justify-content:center;
-  background:#050810;overflow:hidden;
-  transition:opacity .6s ease,visibility .6s ease;
-}
-.login-wrap.hidden{opacity:0;visibility:hidden;pointer-events:none}
-/* 深空径向光晕 */
-.login-wrap::before{
-  content:'';position:absolute;inset:-20%;
-  background:
-    radial-gradient(ellipse 60% 50% at 30% 30%,rgba(6,182,212,.22),transparent 60%),
-    radial-gradient(ellipse 50% 60% at 75% 70%,rgba(59,130,246,.20),transparent 60%),
-    radial-gradient(ellipse 80% 60% at 50% 110%,rgba(139,92,246,.12),transparent 60%);
-  filter:blur(8px);animation:bgPulse 8s ease-in-out infinite alternate;
-}
-@keyframes bgPulse{from{opacity:.7;transform:scale(1)}to{opacity:1;transform:scale(1.08)}}
-/* 透视网格地面 */
-.login-grid{
-  position:absolute;left:50%;bottom:0;width:220%;height:55%;
-  transform:translateX(-50%) perspective(420px) rotateX(62deg);transform-origin:bottom center;
-  background-image:
-    linear-gradient(rgba(59,130,246,.35) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(6,182,212,.30) 1px,transparent 1px);
-  background-size:46px 46px;
-  -webkit-mask-image:linear-gradient(to top,#000 0%,transparent 85%);
-  mask-image:linear-gradient(to top,#000 0%,transparent 85%);
-  animation:gridMove 3.2s linear infinite;
-}
-@keyframes gridMove{from{background-position:0 0}to{background-position:0 46px}}
-/* 粒子 canvas */
-.login-particles{position:absolute;inset:0;width:100%;height:100%}
-/* 持续扫描线 overlay */
-.login-wrap::after{
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(6,182,212,.025) 3px,rgba(6,182,212,.025) 4px);
-  mix-blend-mode:screen;
-}
-/* 移动扫描光带 */
-.login-scan{
-  position:absolute;left:0;right:0;height:140px;top:-140px;pointer-events:none;
-  background:linear-gradient(to bottom,transparent,rgba(6,182,212,.10) 40%,rgba(59,130,246,.18) 50%,rgba(6,182,212,.10) 60%,transparent);
-  animation:scan 5.5s linear infinite;
-}
-@keyframes scan{0%{top:-140px}100%{top:100%}}
-/* 角落 HUD 文字 */
-.login-hud{position:absolute;z-index:2;color:rgba(125,211,252,.5);font-family:var(--mono);font-size:10px;letter-spacing:1px}
-.login-hud.tr{top:20px;right:24px;text-align:right}
-.login-hud.bl{bottom:20px;left:24px}
-.login-hud.br{bottom:20px;right:24px;text-align:right}
-.login-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);vertical-align:middle;margin-right:6px;animation:blink 1.5s ease-in-out infinite}
-@keyframes blink{50%{opacity:.3}}
-/* 登录卡 */
-.login-card{
-  position:relative;z-index:3;width:min(400px,92vw);padding:38px 36px 28px;
-  background:linear-gradient(160deg,rgba(15,23,42,.72),rgba(8,12,24,.85));
-  border:1px solid rgba(59,130,246,.35);border-radius:16px;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  box-shadow:0 0 0 1px rgba(6,182,212,.1) inset,0 20px 60px rgba(0,0,0,.6),0 0 60px rgba(59,130,246,.18);
-  animation:cardIn .7s cubic-bezier(.2,.8,.2,1);
-}
-@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-.login-card::before,.login-card::after{content:'';position:absolute;width:18px;height:18px;border:2px solid var(--cyan)}
-.login-card::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:16px}
-.login-card::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-bottom-right-radius:16px}
-.login-brand{display:flex;align-items:center;gap:14px;margin-bottom:4px}
-.login-logo{
-  width:46px;height:46px;border-radius:12px;
-  background:linear-gradient(135deg,var(--blue),var(--cyan));
-  display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:16px;color:#fff;font-family:var(--mono);letter-spacing:-.5px;
-  box-shadow:0 0 22px rgba(6,182,212,.55);
-}
-.login-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1.2}
-.login-sub{font-size:10px;color:#7dd3fc;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
-.login-tag{font-size:12px;color:var(--text-muted);margin:14px 0 22px;letter-spacing:.2px}
-.login-field{position:relative;margin-bottom:18px}
-.login-field svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#64748b;transition:color .2s}
-.login-field input{
-  width:100%;padding:12px 14px 12px 40px;
-  background:rgba(2,6,18,.55);border:1px solid rgba(59,130,246,.22);border-radius:10px;
-  color:#e2e8f0;font-size:13px;font-family:var(--font);outline:none;transition:all .2s;
-}
-.login-field input::placeholder{color:#475569}
-.login-field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.15),0 0 18px rgba(6,182,212,.18);background:rgba(2,6,18,.75)}
-.login-field:focus-within svg{color:var(--cyan)}
-.login-btn{
-  width:100%;margin-top:6px;padding:13px;border:none;border-radius:10px;cursor:pointer;
-  background:linear-gradient(135deg,var(--blue),var(--cyan));
-  color:#fff;font-size:14px;font-weight:600;letter-spacing:2px;font-family:var(--font);
-  position:relative;overflow:hidden;transition:all .25s;
-  box-shadow:0 6px 20px rgba(59,130,246,.35),0 0 24px rgba(6,182,212,.25);
-}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(59,130,246,.45),0 0 30px rgba(6,182,212,.4)}
-.login-btn:active{transform:translateY(0)}
-.login-btn:disabled{opacity:.7;cursor:wait}
-.login-btn::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:left .6s}
-.login-btn:hover::after{left:150%}
-.login-msg{margin-top:14px;font-size:12px;min-height:18px;text-align:center;color:var(--red);opacity:0;transition:opacity .2s}
-.login-msg.show{opacity:1}
-.login-msg.success{color:var(--green)}
-.login-hint{margin-top:18px;padding-top:16px;border-top:1px solid rgba(59,130,246,.12);font-size:11px;color:var(--text-muted);text-align:center;font-family:var(--mono);letter-spacing:.3px}
-.login-hint b{color:#7dd3fc;font-weight:500}
-/* 侧边栏退出按钮 */
-.logout-btn{width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--transition);flex-shrink:0}
-.logout-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
-.logout-btn svg{width:15px;height:15px}
-
-/* ====== AI 按钮 / 分析卡 ====== */
-.btn-ai{position:relative;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#7c3aed,#06b6d4);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .25s;box-shadow:0 2px 10px rgba(124,58,237,.3),0 0 14px rgba(6,182,212,.18)}
-.btn-ai:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,.45),0 0 22px rgba(6,182,212,.4)}
-.btn-ai:disabled{opacity:.7;cursor:wait;transform:none}
-.btn-ai svg{width:14px;height:14px;animation:aiSpin 6s linear infinite}
-@keyframes aiSpin{to{filter:hue-rotate(360deg)}}
-.ai-card{margin-top:14px;border:1px solid rgba(124,58,237,.25);border-radius:10px;background:linear-gradient(135deg,rgba(124,58,237,.05),rgba(6,182,212,.05));overflow:hidden;animation:fadeUp .35s ease}
-.ai-card-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(124,58,237,.15);background:rgba(124,58,237,.06)}
-.ai-card-head .ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#7c3aed;font-family:var(--mono);letter-spacing:.5px}
-.ai-card-head .ai-badge svg{width:13px;height:13px}
-.ai-card-head .ai-confidence{margin-left:auto;font-size:11px;color:var(--text-secondary);font-family:var(--mono)}
-.ai-card-body{padding:12px 14px}
-.ai-line{display:block;min-height:18px;font-size:12.5px;line-height:1.7;color:var(--text-secondary)}
-.ai-card-body .cursor{display:inline-block;width:7px;height:13px;background:var(--cyan);vertical-align:-2px;margin-left:1px;animation:blink 1s step-end infinite}
-.ai-verdict{display:none;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;font-size:12px;font-weight:700;margin-bottom:9px}
-.ai-verdict.pass{background:var(--green-bg);color:var(--green)}
-.ai-verdict.risk{background:var(--amber-bg);color:var(--amber)}
-.ai-verdict.reject{background:var(--red-bg);color:var(--red)}
-.ai-verdict::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
-.ai-thinking{display:inline-flex;align-items:center;gap:5px;color:var(--purple);font-size:12px}
-.ai-thinking .dt{width:5px;height:5px;border-radius:50%;background:var(--purple);animation:aiDot 1.2s infinite}
-.ai-thinking .dt:nth-child(2){animation-delay:.2s}.ai-thinking .dt:nth-child(3){animation-delay:.4s}
-@keyframes aiDot{0%,80%,100%{opacity:.25;transform:scale(.7)}40%{opacity:1;transform:scale(1.2)}}
-.ai-insight{display:flex;gap:9px;align-items:flex-start;margin-top:7px;padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.04);font-size:12px;line-height:1.5;opacity:0;transform:translateY(4px)}
-.ai-insight.show{opacity:1;transform:translateY(0);transition:all .3s ease}
-.ai-insight .ic{flex-shrink:0;font-weight:700;font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:4px;margin-top:1px;color:#fff}
-.ai-insight.ok{background:rgba(16,185,129,.07)}.ai-insight.ok .ic{background:var(--green)}
-.ai-insight.risk{background:rgba(245,158,11,.08)}.ai-insight.risk .ic{background:var(--amber)}
-.ai-insight.info{background:rgba(59,130,246,.07)}.ai-insight.info .ic{background:var(--blue)}
-.ai-insight.tip{background:rgba(124,58,237,.07)}.ai-insight.tip .ic{background:var(--purple)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-<!-- LOGIN · 赛博深空 -->
-<div class="login-wrap" id="loginWrap">
-  <canvas class="login-particles" id="loginParticles"></canvas>
-  <div class="login-grid"></div>
-  <div class="login-scan"></div>
-  <div class="login-hud" style="top:20px;left:24px"><span class="login-dot"></span>SPAS · SECURE GATEWAY</div>
-  <div class="login-hud tr">NODE: EU-CENTRAL · v1.0</div>
-  <div class="login-hud bl">CHANNEL ENCRYPTED · AES-256</div>
-  <div class="login-hud br">SYS::READY ▮</div>
-  <form class="login-card" id="loginForm" autocomplete="off">
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <canvas id="login-bg"></canvas>
+  <div class="login-grid-overlay"></div>
+  <div class="login-box">
+    <span class="login-corner tl"></span><span class="login-corner tr"></span>
+    <span class="login-corner bl"></span><span class="login-corner br"></span>
     <div class="login-brand">
-      <div class="login-logo">SP</div>
+      <div class="brand-logo">SP</div>
       <div>
-        <div class="login-title">特价审批系统</div>
-        <div class="login-sub">Special Price Approval</div>
+        <h1>特价审批系统</h1>
+        <span>SPECIAL PRICE APPROVAL · v2.6</span>
       </div>
+      <div class="login-status"><span class="dot"></span>SECURE</div>
     </div>
-    <div class="login-tag">身份认证 · 请登录以进入工作台</div>
-    <div class="login-field">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <input type="text" id="loginUser" placeholder="用户名" autocomplete="username" required>
+    <div class="login-title">欢迎登录 <span class="accent">SPAS</span></div>
+    <div class="login-sub">// authenticate to access approval console</div>
+    <div class="login-err" id="login-err"></div>
+    <form id="login-form" onsubmit="return handleLogin(event)">
+      <div class="login-field">
+        <label for="login-username">USERNAME</label>
+        <input type="text" id="login-username" autocomplete="username" placeholder="请输入用户名" required />
+        <svg class="fld-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="login-field">
+        <label for="login-password">PASSWORD</label>
+        <input type="password" id="login-password" autocomplete="current-password" placeholder="请输入密码" required />
+        <svg class="fld-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <button type="submit" class="login-btn" id="login-btn">
+        <span id="login-btn-text">S I G N &nbsp; I N</span>
+      </button>
+    </form>
+    <div class="login-foot">
+      <span>© 2026 SPAS</span>
+      <span><span class="fk">◆</span> SECURE CHANNEL / TLS 1.3</span>
     </div>
-    <div class="login-field">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-      <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password" required>
-    </div>
-    <button type="submit" class="login-btn" id="loginBtn">进 入 系 统</button>
-    <div class="login-msg" id="loginMsg"></div>
-    <div class="login-hint">演示账号 <b>admin</b> &nbsp;·&nbsp; 密码 <b>admin123</b></div>
-  </form>
+  </div>
 </div>
 
 <!-- APP -->
@@ -459,11 +370,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
     </nav>
     <div class="sidebar-user">
-      <div class="user-avatar" id="userAvatar">—</div>
-      <div class="user-meta"><div class="name" id="userName">—</div><div class="role">已认证用户</div></div>
-      <button class="logout-btn" title="退出登录" onclick="logout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </button>
+      <div class="user-avatar">MK</div>
+      <div class="user-meta"><div class="name">Michael König</div><div class="role">高级审批经理</div></div>
     </div>
   </aside>
 
@@ -534,7 +442,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
         <div class="sec-head"><div><div class="sec-title">审批管理</div><div class="sec-desc">处理待审批的特价申请</div></div></div>
         <div class="grid-2">
           <div class="panel"><div class="panel-head"><div class="panel-title">待我审批</div><div class="panel-sub" id="appr-count">3 项待处理</div></div><div id="appr-list"></div></div>
-          <div class="panel"><div class="panel-head"><div class="panel-title">审批流程</div><div class="panel-sub" id="flow-id">选择申请查看详情</div><div class="panel-actions"><button class="btn-ai" id="aiApproveBtn" onclick="aiApprove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>AI 智能审批</button></div></div><div class="panel-body"><div id="ai-approve-out"></div><div class="timeline" id="flow-tl"><div class="tl-step"><div class="tl-dot wait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div><div class="tl-info"><h4>请选择左侧申请</h4><p>查看审批流程详情</p></div></div></div></div></div>
+          <div class="panel"><div class="panel-head"><div class="panel-title">审批流程</div><div class="panel-sub" id="flow-id">选择申请查看详情</div></div><div class="panel-body"><div class="timeline" id="flow-tl"><div class="tl-step"><div class="tl-dot wait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div><div class="tl-info"><h4>请选择左侧申请</h4><p>查看审批流程详情</p></div></div></div></div></div>
         </div>
       </div>
 
@@ -590,7 +498,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <div class="pred-card"><div class="pred-label">运动控制 — 预测均价</div><div class="pred-val">€62,800</div><div class="pred-range"><div class="ri"><div class="rl">最低</div><div class="rv" style="color:var(--cyan)">€58,200</div></div><div class="ri"><div class="rl">预测</div><div class="rv" style="color:var(--blue)">€62,800</div></div><div class="ri"><div class="rl">最高</div><div class="rv" style="color:var(--amber)">€68,400</div></div></div></div>
           <div class="pred-card"><div class="pred-label">过程自动化 — 预测均价</div><div class="pred-val">€115,600</div><div class="pred-range"><div class="ri"><div class="rl">最低</div><div class="rv" style="color:var(--cyan)">€108,000</div></div><div class="ri"><div class="rl">预测</div><div class="rv" style="color:var(--blue)">€115,600</div></div><div class="ri"><div class="rl">最高</div><div class="rv" style="color:var(--amber)">€124,800</div></div></div></div>
         </div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">价格趋势预测</div><div class="panel-sub">未来6个月</div><div class="panel-actions"><button class="btn-ai" id="aiPredictBtn" onclick="aiPredict()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>AI 分析趋势</button></div></div><div class="panel-body"><div class="chart" id="chart-pred" style="height:150px"></div><div id="ai-predict-out"></div></div></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title">价格趋势预测</div><div class="panel-sub">未来6个月</div></div><div class="panel-body"><div class="chart" id="chart-pred" style="height:150px"></div></div></div>
       </div>
 
       <!-- TRACE -->
@@ -633,81 +541,248 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 <div class="toasts" id="toasts"></div>
 <script>
-// ====== AUTH ======
-const API_BASE='https://java-spring-boot-production-4ae4.up.railway.app';
-const USER_KEY='spas_user';
-let particlesRunning=false;
+// === LOGIN 3D BACKGROUND (three.js) ===
+(function init3DBg(){
+  if(typeof THREE === 'undefined') return;
+  const canvas = document.getElementById('login-bg');
+  if(!canvas) return;
 
-function setLoginMsg(t,ok){
-  const m=document.getElementById('loginMsg');
-  m.textContent=t||'';m.className='login-msg show'+(ok?' success':'');
-}
-function fillUser(u){
-  const name=(u&&u.username||'user').toString();
-  document.getElementById('userName').textContent=name;
-  document.getElementById('userAvatar').textContent=name.slice(0,2).toUpperCase();
-}
-function enterApp(u){
-  fillUser(u);
-  particlesRunning=false;
-  const w=document.getElementById('loginWrap');
-  if(w) w.classList.add('hidden');
-}
-async function doLogin(e){
-  e.preventDefault();
-  const u=document.getElementById('loginUser').value.trim();
-  const p=document.getElementById('loginPass').value;
-  const btn=document.getElementById('loginBtn');
-  if(!u||!p){setLoginMsg('请输入用户名和密码');return}
-  btn.disabled=true;const old=btn.textContent;btn.textContent='身 份 验 证 中 …';
-  setLoginMsg('');
-  try{
-    const r=await fetch(API_BASE+'/api/auth/login',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({username:u,password:p})
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x05070d, 0.055);
+
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
+  camera.position.set(0, 0, 18);
+
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x05070d, 1);
+
+  // --- Rotating wireframe icosahedron core ---
+  const coreGeom = new THREE.IcosahedronGeometry(3.2, 1);
+  const coreMat = new THREE.MeshBasicMaterial({color:0x60a5fa, wireframe:true, transparent:true, opacity:0.55});
+  const core = new THREE.Mesh(coreGeom, coreMat);
+  scene.add(core);
+
+  // Inner solid glow
+  const innerGeom = new THREE.IcosahedronGeometry(2.1, 0);
+  const innerMat = new THREE.MeshBasicMaterial({color:0x0ea5e9, transparent:true, opacity:0.10, wireframe:false});
+  const inner = new THREE.Mesh(innerGeom, innerMat);
+  scene.add(inner);
+
+  // --- Orbiting rings ---
+  const rings = [];
+  for(let i=0;i<3;i++){
+    const g = new THREE.TorusGeometry(5.2 + i*1.6, 0.015, 8, 128);
+    const m = new THREE.MeshBasicMaterial({color: i===1?0x22d3ee:0x60a5fa, transparent:true, opacity:0.35});
+    const t = new THREE.Mesh(g, m);
+    t.rotation.x = Math.random()*Math.PI;
+    t.rotation.y = Math.random()*Math.PI;
+    scene.add(t);
+    rings.push(t);
+  }
+
+  // --- Particle field (starfield) ---
+  const pCount = 1200;
+  const pGeom = new THREE.BufferGeometry();
+  const pos = new Float32Array(pCount*3);
+  const col = new Float32Array(pCount*3);
+  for(let i=0;i<pCount;i++){
+    const r = 12 + Math.random()*40;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos(2*Math.random()-1);
+    pos[i*3]   = r*Math.sin(phi)*Math.cos(theta);
+    pos[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
+    pos[i*3+2] = r*Math.cos(phi);
+    const t = Math.random();
+    col[i*3]   = 0.24 + t*0.2;   // R
+    col[i*3+1] = 0.55 + t*0.35;  // G
+    col[i*3+2] = 0.95;           // B
+  }
+  pGeom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  pGeom.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const pMat = new THREE.PointsMaterial({size:0.06, vertexColors:true, transparent:true, opacity:0.9, sizeAttenuation:true});
+  const particles = new THREE.Points(pGeom, pMat);
+  scene.add(particles);
+
+  // --- Data lines connecting random points near core ---
+  const lineCount = 20;
+  const lineGroup = new THREE.Group();
+  const lineData = [];
+  for(let i=0;i<lineCount;i++){
+    const geom = new THREE.BufferGeometry();
+    const verts = new Float32Array(6);
+    geom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+    const mat = new THREE.LineBasicMaterial({color:0x22d3ee, transparent:true, opacity:0.0});
+    const line = new THREE.Line(geom, mat);
+    lineGroup.add(line);
+    lineData.push({line, life:Math.random(), speed:0.4+Math.random()*0.6});
+  }
+  scene.add(lineGroup);
+
+  function rndPointOnSphere(r){
+    const t = Math.random()*Math.PI*2;
+    const p = Math.acos(2*Math.random()-1);
+    return [r*Math.sin(p)*Math.cos(t), r*Math.sin(p)*Math.sin(t), r*Math.cos(p)];
+  }
+
+  // Mouse parallax
+  let mx = 0, my = 0, tx = 0, ty = 0;
+  window.addEventListener('mousemove', (e)=>{
+    tx = (e.clientX/window.innerWidth - 0.5) * 2;
+    ty = (e.clientY/window.innerHeight - 0.5) * 2;
+  });
+
+  const clock = new THREE.Clock();
+  let running = true;
+
+  function animate(){
+    if(!running) return;
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    core.rotation.x = t*0.15;
+    core.rotation.y = t*0.22;
+    inner.rotation.x = -t*0.25;
+    inner.rotation.y = -t*0.18;
+
+    rings.forEach((r,i)=>{
+      r.rotation.x += 0.002 + i*0.0007;
+      r.rotation.y += 0.003 - i*0.0006;
     });
-    const j=await r.json();
-    if(r.ok&&j.code===200&&j.data){
-      const d=j.data;
-      const user={userId:d.userId,username:d.username,loginTime:d.loginTime};
-      localStorage.setItem(USER_KEY,JSON.stringify(user));
-      setLoginMsg(j.message||'登录成功',true);
-      setTimeout(()=>enterApp(user),420);
-    }else{
-      setLoginMsg(j.message||'登录失败，请检查账号或密码');
-      btn.disabled=false;btn.textContent=old;
-    }
-  }catch(err){
-    setLoginMsg('网络异常，请检查连接后重试');
-    btn.disabled=false;btn.textContent=old;
-  }
-}
-function logout(){localStorage.removeItem(USER_KEY);location.reload();}
 
-// 粒子背景
-function initParticles(){
-  const c=document.getElementById('loginParticles');if(!c)return;
-  const ctx=c.getContext('2d');let w,h,ps=[];
-  function resize(){
-    w=c.width=c.offsetWidth||innerWidth;h=c.height=c.offsetHeight||innerHeight;
-    const n=Math.min(70,Math.floor(w*h/22000));
-    ps=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.25,vy:-(Math.random()*.5+.1),a:Math.random()*.5+.2}));
+    particles.rotation.y = t*0.02;
+    particles.rotation.x = Math.sin(t*0.08)*0.1;
+
+    // Update data lines
+    lineData.forEach(d=>{
+      d.life += 0.008 * d.speed;
+      if(d.life > 1){
+        d.life = 0;
+        const a = rndPointOnSphere(3.2);
+        const b = rndPointOnSphere(6 + Math.random()*4);
+        const arr = d.line.geometry.attributes.position.array;
+        arr[0]=a[0]; arr[1]=a[1]; arr[2]=a[2];
+        arr[3]=b[0]; arr[4]=b[1]; arr[5]=b[2];
+        d.line.geometry.attributes.position.needsUpdate = true;
+      }
+      d.line.material.opacity = Math.sin(d.life*Math.PI)*0.7;
+    });
+
+    // Parallax
+    mx += (tx - mx)*0.05;
+    my += (ty - my)*0.05;
+    camera.position.x = mx*1.6;
+    camera.position.y = -my*1.2;
+    camera.lookAt(0,0,0);
+
+    renderer.render(scene, camera);
   }
-  function tick(){
-    if(!particlesRunning)return;
-    ctx.clearRect(0,0,w,h);
-    for(const p of ps){
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.y<-5){p.y=h+5;p.x=Math.random()*w}
-      if(p.x<-5)p.x=w+5;else if(p.x>w+5)p.x=-5;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(125,211,252,'+p.a+')';ctx.fill();
+  animate();
+
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Stop when login screen hides (save GPU)
+  const screen = document.getElementById('login-screen');
+  const obs = new MutationObserver(()=>{
+    if(screen.classList.contains('hidden')){
+      running = false;
     }
-    requestAnimationFrame(tick);
+  });
+  obs.observe(screen, {attributes:true, attributeFilter:['class']});
+})();
+
+// === LOGIN ===
+const LOGIN_API = 'https://java-spring-boot-production-4ae4.up.railway.app/api/auth/login';
+
+async function handleLogin(e){
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const btnText = document.getElementById('login-btn-text');
+  const errBox = document.getElementById('login-err');
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+
+  errBox.classList.remove('show');
+  errBox.textContent = '';
+
+  if(!username || !password){
+    errBox.textContent = '请输入用户名和密码';
+    errBox.classList.add('show');
+    return false;
   }
-  resize();particlesRunning=true;tick();
-  addEventListener('resize',resize);
+
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="login-spinner"></span> 登录中...';
+
+  try {
+    const res = await fetch(LOGIN_API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch(_) {}
+
+    if(!res.ok){
+      const msg = (data && (data.message || data.error)) || ('登录失败 (HTTP ' + res.status + ')');
+      throw new Error(msg);
+    }
+
+    // Unified response: { code, message, data: { userId, username, loginTime } }
+    if(data && typeof data.code !== 'undefined' && data.code !== 0 && data.code !== 200){
+      throw new Error(data.message || '登录失败');
+    }
+
+    const info = (data && data.data) ? data.data : data || {};
+    try {
+      sessionStorage.setItem('spas_user', JSON.stringify(info));
+    } catch(_) {}
+
+    // Update sidebar user display
+    if(info && info.username){
+      const nameEl = document.querySelector('.sidebar-user .user-meta .name');
+      const avEl = document.querySelector('.sidebar-user .user-avatar');
+      if(nameEl) nameEl.textContent = info.username;
+      if(avEl) avEl.textContent = info.username.slice(0,2).toUpperCase();
+    }
+
+    document.getElementById('login-screen').classList.add('hidden');
+    if(typeof toast === 'function'){
+      toast('success', '欢迎回来，' + (info.username || username));
+    }
+  } catch(err) {
+    errBox.textContent = err.message || '网络错误，请稍后重试';
+    errBox.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = '登 录';
+  }
+  return false;
 }
+
+// Auto-skip login if already signed in this session
+(function restoreSession(){
+  try {
+    const raw = sessionStorage.getItem('spas_user');
+    if(!raw) return;
+    const info = JSON.parse(raw);
+    if(info && info.username){
+      document.getElementById('login-screen').classList.add('hidden');
+      document.addEventListener('DOMContentLoaded', () => {
+        const nameEl = document.querySelector('.sidebar-user .user-meta .name');
+        const avEl = document.querySelector('.sidebar-user .user-avatar');
+        if(nameEl) nameEl.textContent = info.username;
+        if(avEl) avEl.textContent = info.username.slice(0,2).toUpperCase();
+      });
+    }
+  } catch(_) {}
+})();
 
 // === DATA ===
 const apps=[
@@ -881,10 +956,6 @@ function doTrace(){
 // === INIT ===
 document.addEventListener('DOMContentLoaded',()=>{
   renderTbl('all');renderAppr();initCharts();sim();doTrace();
-  document.getElementById('loginForm').addEventListener('submit',doLogin);
-  const saved=localStorage.getItem(USER_KEY);
-  if(saved){try{enterApp(JSON.parse(saved));return}catch(e){}}
-  initParticles();
 });
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
