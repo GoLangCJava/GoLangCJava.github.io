@@ -578,7 +578,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
               <div class="fg"><label>预计年销量 (件)</label><input class="fi" type="number" id="s-vol" value="500" oninput="sim()"></div>
             </div>
           </div></div>
-          <div class="panel"><div class="panel-head"><div class="panel-title">模拟结果</div></div><div class="panel-body"><div class="sim-box" id="sim-out"></div></div></div>
+          <div class="panel"><div class="panel-head"><div class="panel-title">模拟结果</div><div class="panel-actions"><button class="btn-ai" id="aiProfitBtn" onclick="aiProfit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>AI 优化定价</button></div></div><div class="panel-body"><div class="sim-box" id="sim-out"></div><div id="ai-profit-out"></div></div></div>
         </div>
       </div>
 
@@ -800,7 +800,7 @@ function showFlow(id){
 
 // === AI 智能分析 ===
 const sleepAI=ms=>new Promise(r=>setTimeout(r,ms));
-let currentFlowId=null,approveRun=0,predictRun=0;
+let currentFlowId=null,approveRun=0,predictRun=0,profitRun=0;
 
 async function aiApprove(){
   if(!currentFlowId){toast('info','请先在左侧选择一个待审批申请');return}
@@ -872,6 +872,49 @@ async function aiPredict(){
   if(btn&&my===predictRun){btn.disabled=false;btn.innerHTML=btn.dataset.txt}
 }
 
+async function aiProfit(){
+  const my=++profitRun;
+  const out=document.getElementById('ai-profit-out');
+  const btn=document.getElementById('aiProfitBtn');
+  const pr=parseFloat(document.getElementById('s-price').value)||0;
+  const co=parseFloat(document.getElementById('s-cost').value)||0;
+  const di=parseFloat(document.getElementById('s-disc').value)||0;
+  const vo=parseInt(document.getElementById('s-vol').value)||0;
+  if(pr<=0||vo<=0){toast('info','请先输入有效的标准售价与销量');return}
+  if(btn){btn.disabled=true;btn.dataset.txt=btn.innerHTML;btn.innerHTML='优化中…'}
+  const sp=pr*(1-di/100),mu=sp-co,mp=sp>0?(mu/sp*100):0,tp=mu*vo;
+  const elas=2.5+Math.random()*1.5;
+  let best={d:di,p:tp,v:vo};
+  for(let dd=0;dd<=40;dd+=2){
+    const vdd=Math.max(0,Math.round(vo*(1+(dd-di)*elas/100)));
+    const pdd=(pr*(1-dd/100)-co)*vdd;
+    if(pdd>best.p)best={d:dd,p:pdd,v:vdd};
+  }
+  const uplift=tp>0?(((best.p-tp)/tp)*100):0;
+  const oSp=pr*(1-best.d/100),oMu=oSp-co,oMp=oSp>0?(oMu/oSp*100):0;
+  const verdict=mp>=30?'方案健康':mp>=20?'可优化':'需优化';
+  const vc=mp>=30?'pass':mp>=20?'risk':'reject';
+  const summary=`当前折扣 ${di}%、利润率 ${mp.toFixed(1)}%；引入价格弹性 ${elas.toFixed(1)} 后，最优折扣约 ${best.d}%，年利润可提升 ${uplift>=0?'+':''}${uplift.toFixed(1)}%。`;
+  const insights=[
+    {t:best.d<di?'ok':'tip',l:'最优定价',i:`建议折扣 ${best.d}%（单价 €${oSp.toLocaleString(undefined,{maximumFractionDigits:0})}），单位利润率 ${oMp.toFixed(1)}%`},
+    {t:uplift>0?'ok':'risk',l:'利润提升',i:`年利润 €${tp.toLocaleString(undefined,{maximumFractionDigits:0})} → €${best.p.toLocaleString(undefined,{maximumFractionDigits:0})}（${uplift>=0?'+':''}${uplift.toFixed(1)}%）`},
+    {t:'info',l:'量价平衡',i:`价格弹性 ${elas.toFixed(1)}：折扣${best.d<di?'下调':'上调'} ${Math.abs(best.d-di)}%，预测销量 ${best.v.toLocaleString()} 件`},
+    {t:mp<20?'risk':'tip',l:'策略',i:mp<20?'当前毛利偏低，优先提高单价或缩减折扣修复利润率':'利润率健康，建议锁定长协价并附加量价阶梯条款'}
+  ];
+  out.innerHTML=`<div class="ai-card"><div class="ai-card-head"><span class="ai-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>AI 利润优化</span><span class="ai-confidence" id="aiPr-conf">优化中…</span></div><div class="ai-card-body"><div class="ai-verdict ${vc}" id="aiPr-vd">${verdict}</div><div class="ai-line" id="aiPr-sum"></div><div id="aiPr-ins"></div></div></div>`;
+  const elSum=document.getElementById('aiPr-sum');
+  elSum.innerHTML=`<span class="ai-thinking"><span>运行利润模型 · 扫描 21 个量价组合</span><span class="dt"></span><span class="dt"></span><span class="dt"></span></span>`;
+  await sleepAI(1100);if(my!==profitRun)return;
+  document.getElementById('aiPr-vd').style.display='inline-flex';
+  document.getElementById('aiPr-conf').textContent='置信度 '+Math.max(60,88-Math.round(Math.abs(uplift)/2))+'%';
+  for(let i=0;i<=summary.length;i++){if(my!==profitRun)return;elSum.innerHTML=summary.slice(0,i)+'<span class="cursor"></span>';await sleepAI(16)}
+  if(my!==profitRun)return;
+  elSum.innerHTML=summary;
+  const elIns=document.getElementById('aiPr-ins');
+  for(const it of insights){if(my!==profitRun)return;await sleepAI(240);const div=document.createElement('div');div.className='ai-insight '+it.t;div.innerHTML=`<span class="ic">${it.l}</span><span>${it.i}</span>`;elIns.appendChild(div);requestAnimationFrame(()=>div.classList.add('show'))}
+  if(my===profitRun){toast('success','AI 优化方案已生成：'+verdict);if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.txt}}
+}
+
 // === MODAL ===
 function openModal(id){document.getElementById(id).classList.add('show')}
 function closeModal(id){document.getElementById(id).classList.remove('show')}
@@ -935,6 +978,9 @@ function sim(){
     <div class="sim-row hl"><span class="sl">年度总利润</span><span class="sv">€${tp.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
     <div class="sim-row ${pl<0?'danger':''}"><span class="sl">vs 标准价格利润差</span><span class="sv" style="color:${pl<0?'var(--red)':'var(--green)'}">€${pl.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
     <div style="margin-top:10px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">利润率指标</div><div class="progress"><div class="progress-fill" style="width:${Math.min(mp,100)}%;background:${pc}"></div></div></div>`;
+  const apo=document.getElementById('ai-profit-out');if(apo)apo.innerHTML='';
+  const pfb=document.getElementById('aiProfitBtn');if(pfb){pfb.disabled=false;if(pfb.dataset.txt)pfb.innerHTML=pfb.dataset.txt}
+  profitRun++;
 }
 
 // === TRACE ===
