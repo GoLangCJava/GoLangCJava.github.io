@@ -781,6 +781,9 @@ function renderAppr(){
 }
 function showFlow(id){
   const a=apps.find(x=>x.id===id);if(!a)return;
+  currentFlowId=id;approveRun++;
+  const ao=document.getElementById('ai-approve-out');if(ao)ao.innerHTML='';
+  const ab=document.getElementById('aiApproveBtn');if(ab){ab.disabled=false;if(ab.dataset.txt)ab.innerHTML=ab.dataset.txt}
   document.getElementById('flow-id').textContent=a.id;
   const steps=[
     {t:'销售提交申请',d:a.cust+' — '+a.prod,tm:a.dt+' 09:15',s:'done'},
@@ -793,6 +796,80 @@ function showFlow(id){
   document.getElementById('flow-tl').innerHTML=steps.map(s=>{
     const ic=s.s==='done'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>':s.s==='now'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
     return `<div class="tl-step"><div class="tl-dot ${s.s}">${ic}</div><div class="tl-info"><h4>${s.t}</h4><p>${s.d}</p><div class="tl-time">${s.tm}</div></div></div>`}).join('');
+}
+
+// === AI 智能分析 ===
+const sleepAI=ms=>new Promise(r=>setTimeout(r,ms));
+let currentFlowId=null,approveRun=0,predictRun=0;
+
+async function aiApprove(){
+  if(!currentFlowId){toast('info','请先在左侧选择一个待审批申请');return}
+  const a=apps.find(x=>x.id===currentFlowId);if(!a)return;
+  const my=++approveRun;
+  const out=document.getElementById('ai-approve-out');
+  const btn=document.getElementById('aiApproveBtn');
+  if(btn){btn.disabled=true;btn.dataset.txt=btn.innerHTML;btn.innerHTML='分析中…'}
+  const d=Math.round((1-a.np/a.op)*100);
+  const bigCust=/Siemens|BMW|Volkswagen|BASF|ABB|Daimler|Schneider/i.test(a.cust);
+  const revenue=a.np*a.vol;
+  let verdict,vc,confidence,summary,cond='';
+  if(d<=15){verdict='建议通过';vc='pass';confidence=86+Math.min(d,8);summary=`折扣率 ${d}% 处于安全区间，${a.cust} 信用良好，利润模型校验通过，建议批准。`}
+  else if(d<=20){verdict='建议通过';vc='pass';confidence=76+(20-d)*2;summary=`折扣率 ${d}% 略高于部门均值 15%，但 ${a.cust} 为重点客户，综合风险可控，建议附条件通过。`;cond='锁定最低采购量'}
+  else if(d<=25){verdict='建议复审';vc='risk';confidence=64;summary=`折扣率 ${d}% 已触及利润红线，单笔影响较大，建议财务复审并追加商务条款。`;cond='提高单价或增加用量承诺'}
+  else{verdict='建议驳回';vc='reject';confidence=58;summary=`折扣率 ${d}% 严重侵蚀利润，且回款周期偏长，建议驳回并要求销售重新报价。`}
+  const insights=[
+    {t:bigCust?'ok':'info',l:'客户',i:bigCust?`${a.cust} 战略级客户，信用评级 AAA，历史回款零逾期`:`${a.cust} 中等信用，建议核查近 12 个月交易记录`},
+    {t:d>20?'risk':'ok',l:d>20?'风险':'折扣',i:`折扣 ${d}%，${d>20?'高于部门均值 15%，需重点管控利润率':'符合部门定价策略'}`},
+    {t:'info',l:'规模',i:`预计年度总收入 €${revenue.toLocaleString()}，贡献 ${a.dept} Q3 业绩目标`},
+    {t:'tip',l:'策略',i:cond?`${cond}，预计可挽回利润率 ${(1+Math.random()*3).toFixed(1)}%`:'维持现有条款，按标准流程放行'}
+  ];
+  out.innerHTML=`<div class="ai-card"><div class="ai-card-head"><span class="ai-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>AI 智能审批</span><span class="ai-confidence" id="aiA-conf">分析中…</span></div><div class="ai-card-body"><div class="ai-verdict ${vc}" id="aiA-vd">${verdict}</div><div class="ai-line" id="aiA-sum"></div><div id="aiA-ins"></div></div></div>`;
+  const elSum=document.getElementById('aiA-sum');
+  elSum.innerHTML=`<span class="ai-thinking"><span>正在分析 ${a.id} · 比对历史 ${300+Math.floor(Math.random()*200)} 条同类案例</span><span class="dt"></span><span class="dt"></span><span class="dt"></span></span>`;
+  await sleepAI(1000);if(my!==approveRun)return;
+  document.getElementById('aiA-vd').style.display='inline-flex';
+  document.getElementById('aiA-conf').textContent='置信度 '+confidence+'%';
+  for(let i=0;i<=summary.length;i++){if(my!==approveRun)return;elSum.innerHTML=summary.slice(0,i)+'<span class="cursor"></span>';await sleepAI(16)}
+  if(my!==approveRun)return;
+  elSum.innerHTML=summary;
+  const elIns=document.getElementById('aiA-ins');
+  for(const it of insights){if(my!==approveRun)return;await sleepAI(240);const div=document.createElement('div');div.className='ai-insight '+it.t;div.innerHTML=`<span class="ic">${it.l}</span><span>${it.i}</span>`;elIns.appendChild(div);requestAnimationFrame(()=>div.classList.add('show'))}
+  if(my!==approveRun)return;
+  toast('success','AI 审批建议已生成：'+verdict);
+  if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.txt}
+}
+
+async function aiPredict(){
+  const my=++predictRun;
+  const out=document.getElementById('ai-predict-out');
+  const btn=document.getElementById('aiPredictBtn');
+  if(btn){btn.disabled=true;btn.dataset.txt=btn.innerHTML;btn.innerHTML='分析中…'}
+  const p=[84,82,86,83,88,85,87,84,89,86,90,87,85,88,91,89,87,90];
+  const start=p[0],end=p[p.length-1];
+  const change=(((end-start)/start)*100).toFixed(1);
+  const max=Math.max(...p),min=Math.min(...p);
+  const volatility=((max-min)/min*100).toFixed(1);
+  const peakIdx=p.indexOf(max);
+  const trend=+change>1?'温和上行':+change<-1?'震荡回落':'区间震荡';
+  const summary=`未来 6 个月价格呈${trend}趋势，整体波动率 ${volatility}%，第 ${peakIdx+1} 期出现周期高点。`;
+  const insights=[
+    {t:+change>=0?'ok':'risk',l:'趋势',i:`周期内价格变动 ${change>=0?'+':''}${change}%，${trend}，定价窗口${+change>=0?'稳定':'收窄'}`},
+    {t:'info',l:'波动',i:`最高 €${max} / 最低 €${min}，波动率 ${volatility}%，处于历史${+volatility<10?'低位':'中位'}`},
+    {t:'tip',l:'拐点',i:`第 ${peakIdx+1} 期触顶，建议${peakIdx>p.length/2?'在后半段来临前':'在前半段'}锁定长协价`},
+    {t:'tip',l:'策略',i:`最优定价：维持现价 + ${(1+Math.random()*2).toFixed(1)}% 浮动空间，规避 Q4 竞品抬价风险`}
+  ];
+  out.innerHTML=`<div class="ai-card"><div class="ai-card-head"><span class="ai-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>AI 趋势分析</span><span class="ai-confidence" id="aiP-conf">分析中…</span></div><div class="ai-card-body"><div class="ai-verdict ${+change>=0?'pass':'risk'}" id="aiP-vd">${trend}</div><div class="ai-line" id="aiP-sum"></div><div id="aiP-ins"></div></div></div>`;
+  const elSum=document.getElementById('aiP-sum');
+  elSum.innerHTML=`<span class="ai-thinking"><span>加载时序模型 · 分析 ${p.length} 个观测点</span><span class="dt"></span><span class="dt"></span><span class="dt"></span></span>`;
+  await sleepAI(1000);if(my!==predictRun)return;
+  document.getElementById('aiP-vd').style.display='inline-flex';
+  document.getElementById('aiP-conf').textContent='置信度 '+(90-Math.round(+volatility))+'%';
+  for(let i=0;i<=summary.length;i++){if(my!==predictRun)return;elSum.innerHTML=summary.slice(0,i)+'<span class="cursor"></span>';await sleepAI(16)}
+  if(my!==predictRun)return;
+  elSum.innerHTML=summary;
+  const elIns=document.getElementById('aiP-ins');
+  for(const it of insights){if(my!==predictRun)return;await sleepAI(240);const div=document.createElement('div');div.className='ai-insight '+it.t;div.innerHTML=`<span class="ic">${it.l}</span><span>${it.i}</span>`;elIns.appendChild(div);requestAnimationFrame(()=>div.classList.add('show'))}
+  if(btn&&my===predictRun){btn.disabled=false;btn.innerHTML=btn.dataset.txt}
 }
 
 // === MODAL ===
